@@ -1,6 +1,6 @@
 // src/components/CalculateModal.tsx
 import { useEffect } from "react";
-import OptionCard from "./ui/optionCard";
+import OptionCard from "../components/ui/OptionCard";
 import payPit from "../assets/payePit.png";
 import vat from "../assets/vat.png";
 import freelancer from "../assets/freelancer.png";
