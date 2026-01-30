@@ -1,0 +1,31 @@
+// src/App.tsx
+// ----------------------------------------------
+
+// imports
+// ----------------------------------------------
+import Shell from "./components/Shell";
+import { useAuth } from "./state/useAuth";
+import AppRoutes from "./routes";
+
+// ----------------------------------------------
+// ----------------------------------------------
+
+export default function App() {
+	const { loading } = useAuth();
+
+	if (loading) {
+		return (
+			<div className="min-h-screen flex items-center justify-center text-slate-600">
+				Loading…
+			</div>
+		);
+	}
+
+	return (
+		<Shell>
+			<AppRoutes />
+		</Shell>
+	);
+}
+// ----------------------------------------------
+// ----------------------------------------------
