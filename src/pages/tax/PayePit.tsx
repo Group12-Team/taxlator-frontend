@@ -146,9 +146,7 @@ export default function PayePit() {
 					<div className="font-medium text-xs text-slate-600">
 						Pension Contribution
 					</div>
-					<div className="text-xs text-slate-600 mt-1">
-						8% deduction on basic salary
-					</div>
+					<div className="text-xs text-slate-600 mt-1">8% deduction</div>
 				</div>
 			</div>
 

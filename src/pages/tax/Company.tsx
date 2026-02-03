@@ -1,12 +1,12 @@
 // src/pages/tax/Company.tsx
 // -----------------------------------------------------------
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import TaxPageLayout from "./TaxPageLayout";
 import { api } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
 import { addHistory } from "../../state/history";
-// import type { CitCalculatePayload, CitResult } from "../../api/types";
+import type { CitCalculatePayload, CitResult } from "../../api/types";
 import { useAuth } from "../../state/useAuth";
 import CompanyResultPanel from "./CompanyResultPanel";
 
@@ -47,21 +47,33 @@ export default function Company() {
 		() => parseNumber(annualTurnover),
 		[annualTurnover],
 	);
+
 	const fixedAssetsNumber = useMemo(
 		() => parseNumber(fixedAssets),
 		[fixedAssets],
 	);
+
 	const taxableProfitNumber = useMemo(
 		() => parseNumber(taxableProfit),
 		[taxableProfit],
 	);
+
 	const accountingProfitNumber = useMemo(
 		() => parseNumber(accountingProfit),
 		[accountingProfit],
 	);
 
+	// Clear accounting profit if not multinational
+	// ---------------------------
+	useEffect(() => {
+		if (companySize !== "MULTINATIONAL") {
+			setAccountingProfit("");
+		}
+	}, [companySize]);
+
 	async function calculate() {
 		if (!companySize || annualTurnoverNumber <= 0) return;
+
 		setError("");
 		setBusy(true);
 
@@ -80,19 +92,13 @@ export default function Company() {
 				payload,
 			);
 
-			// Typed success guard
-			// ---------------------------
 			if (!data.success) {
 				setError(data.message || data.error || "CIT calculation failed");
 				return;
 			}
 
-			// Fully typed result
-			// ---------------------------
 			setResult(data.data);
 
-			// Log to history
-			// ---------------------------
 			addHistory({
 				type: "COMPANY",
 				input: payload,
@@ -150,18 +156,18 @@ export default function Company() {
 			{/* Company Size */}
 			<CompanySizeSelect value={companySize} onChange={setCompanySize} />
 
-			{/* Accounting Profit */}
-			<CurrencyInput
-				id="accounting-profit"
-				label="Accounting Profit"
-				value={formatNumber(accountingProfit)}
-				onChange={(v) => setAccountingProfit(v.replace(/,/g, ""))}
-			/>
+			{/* Accounting Profit (Multinationals only) */}
+			{companySize === "MULTINATIONAL" && (
+				<CurrencyInput
+					id="accounting-profit"
+					label="Accounting Profit"
+					value={formatNumber(accountingProfit)}
+					onChange={(v) => setAccountingProfit(v.replace(/,/g, ""))}
+				/>
+			)}
 
-			{/* Proceed/calculate button */}
+			{/* Proceed */}
 			<TaxProceedButton onClick={calculate} loading={busy} />
 		</TaxPageLayout>
 	);
 }
-// -----------------------------------------------------------
-// -----------------------------------------------------------

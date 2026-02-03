@@ -136,7 +136,7 @@ export default function FreeLancer() {
 
 			<CurrencyInput
 				id="pensionContribution"
-				label="Pension Contributions"
+				label="Pension Contribution"
 				value={formatNumber(pensionContribution)}
 				onChange={(v) => setPensionContribution(v.replace(/,/g, ""))}
 			/>

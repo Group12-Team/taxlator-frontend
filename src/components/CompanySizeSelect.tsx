@@ -1,9 +1,3 @@
-// src/components/CompanySizeSelect.jsx
-// --------------------------------------------
-
-// --------------------------------------------
-// Imports
-// --------------------------------------------
 import { useState } from "react";
 
 // --------------------------------------------
@@ -11,6 +5,9 @@ import { useState } from "react";
 // --------------------------------------------
 export type CompanySize = "SMALL" | "OTHER" | "MULTINATIONAL";
 
+// --------------------------------------------
+// Options (TYPED)
+// --------------------------------------------
 const COMPANY_SIZE_OPTIONS: {
 	value: CompanySize;
 	label: string;
@@ -35,7 +32,6 @@ const COMPANY_SIZE_OPTIONS: {
 type CompanySizeSelectProps = {
 	value: CompanySize | "";
 	onChange: (value: CompanySize) => void;
-
 	containerClassName?: string;
 };
 
