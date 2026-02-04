@@ -1,6 +1,5 @@
 // src/pages/SignUp.tsx
 // ----------------------------------------------
-
 // Sign Up Page
 // ----------------------------------------------
 
@@ -11,7 +10,6 @@ import axios from "axios";
 import MotionButton from "../../components/ui/buttons/MotionButton";
 
 // ----------------------------------------------
-// ----------------------------------------------
 
 export default function SignUp() {
 	const { signup } = useAuth();
@@ -21,22 +19,33 @@ export default function SignUp() {
 	const [lastName, setLastName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [confirmPassword, setConfirmPassword] = useState("");
 
 	const [showPassword, setShowPassword] = useState(false);
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+	const [agree, setAgree] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 
 	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		setError("");
+
+		if (password !== confirmPassword) {
+			setError("Passwords do not match");
+			return;
+		}
+
+		if (!agree) {
+			setError("You must agree to the Terms and Privacy Policy");
+			return;
+		}
+
 		setBusy(true);
 
 		try {
-			// Signup already sends a verification code in your backend.
-			// So you do NOT need to call sendVerificationCode here.
 			await signup({ firstName, lastName, email, password });
-
-			// Redirect user to verify page with email prefilled
 			navigate("/verify-email", { state: { email } });
 		} catch (err: unknown) {
 			if (axios.isAxiosError(err)) {
@@ -52,18 +61,18 @@ export default function SignUp() {
 	return (
 		<div className="bg-slate-200 min-h-[80vh] w-full flex items-center justify-center px-4 py-10">
 			<div className="w-full max-w-md bg-white rounded-2xl border shadow-soft overflow-hidden">
-				<div className="p-6 border-b text-center">
+				<div className="p-6 text-center">
 					<div className="w-12 h-12 mx-auto rounded bg-brand-700 text-white grid place-items-center font-bold">
 						T
 					</div>
 					<div className="mt-3 text-lg font-semibold">Sign Up</div>
-					<div className="text-xs text-slate-600">
+					<div className="text-xs text-slate-500">
 						Create your free Taxlator account
 					</div>
 				</div>
 
-				{/* SIGNUP FORM */}
-				<form className="p-6 overflow-x-hidden" onSubmit={onSubmit}>
+				{/* SIGN-UP FORM */}
+				<form className="p-5 overflow-x-hidden" onSubmit={onSubmit}>
 					{error && (
 						<div className="mb-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">
 							{error}
@@ -75,10 +84,10 @@ export default function SignUp() {
 						First Name
 					</label>
 					<input
-						className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+						className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm placeholder:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
 						value={firstName}
 						onChange={(e) => setFirstName(e.target.value)}
-						placeholder="Enter first name"
+						placeholder="Enter your first name"
 						required
 					/>
 
@@ -87,23 +96,23 @@ export default function SignUp() {
 						Last Name
 					</label>
 					<input
-						className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+						className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm placeholder:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
 						value={lastName}
 						onChange={(e) => setLastName(e.target.value)}
-						placeholder="Enter last name"
+						placeholder="Enter your last name"
 						required
 					/>
 
-					{/* EMAIL ADDRESS */}
+					{/* EMAIL */}
 					<label className="text-xs font-semibold text-slate-700 mt-4 block">
 						Email Address
 					</label>
 					<input
 						type="email"
-						className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+						className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm placeholder:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
-						placeholder="Enter your email"
+						placeholder="Enter your email address"
 						required
 					/>
 
@@ -111,46 +120,85 @@ export default function SignUp() {
 					<label className="text-xs font-semibold text-slate-700 mt-4 block">
 						Password
 					</label>
-
-					{/* 🔐 PASSWORD WITH TOGGLE */}
 					<div className="relative mt-1">
 						<input
-							className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
 							type={showPassword ? "text" : "password"}
+							className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm placeholder:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
 							placeholder="Enter your password"
 							required
 						/>
-
-						{/* show/hide password button */}
 						<button
 							type="button"
-							onClick={() => setShowPassword((prev) => !prev)}
-							className="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-slate-700"
-							aria-label={showPassword ? "Hide password" : "Show password"}
+							onClick={() => setShowPassword((p) => !p)}
+							className="absolute inset-y-0 right-3 flex items-center"
 						>
 							{showPassword ? "🙈" : "👁"}
 						</button>
 					</div>
 
-					{/* sign-up button */}
+					{/* CONFIRM PASSWORD */}
+					<label className="text-xs font-semibold text-slate-700 mt-4 block">
+						Confirm Password
+					</label>
+					<div className="relative mt-1">
+						<input
+							type={showConfirmPassword ? "text" : "password"}
+							className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm placeholder:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+							value={confirmPassword}
+							onChange={(e) => setConfirmPassword(e.target.value)}
+							placeholder="Confirm your password"
+							required
+						/>
+						<button
+							type="button"
+							onClick={() => setShowConfirmPassword((p) => !p)}
+							className="absolute inset-y-0 right-3 flex items-center"
+						>
+							{showConfirmPassword ? "🙈" : "👁"}
+						</button>
+					</div>
+
+					{/* TERMS AND CONDITIONS / PRIVACY POLICY */}
+					<div className="mt-2 flex items-start justify-center gap-2 text-xs">
+						<input
+							type="checkbox"
+							checked={agree}
+							onChange={(e) => setAgree(e.target.checked)}
+							className="mt-0.5 h-3.5 w-3.5"
+						/>
+						<p className="text-slate-500 text-center leading-relaxed">
+							By clicking, you agree to our{" "}
+							<Link
+								to="/Terms_Conditions"
+								className="text-brand-400 hover:text-black font-medium"
+							>
+								Terms of Service
+							</Link>{" "}
+							and{" "}
+							<Link
+								to="/Privacy_Policy"
+								className="text-brand-400 hover:text-black font-medium"
+							>
+								Privacy Policy
+							</Link>
+						</p>
+					</div>
+
+					{/* SIGN-UP BUTTON */}
 					<MotionButton className="mt-6 w-full">
 						<button
 							disabled={busy}
-							className="mt-5 w-full rounded bg-brand-800 text-white py-2.5 text-sm font-semibold hover:bg-brand-900 disabled:opacity-60"
+							className="w-full rounded bg-brand-800 text-white py-2.5 text-sm font-semibold hover:bg-brand-900 disabled:opacity-60"
 						>
 							{busy ? "Creating..." : "Sign Up"}
 						</button>
 					</MotionButton>
 
-					{/* sign-up have account */}
 					<div className="mt-4 text-xs text-slate-600 text-center">
 						Already have an account?{" "}
-						<Link
-							className="text-brand-800 font-semibold hover:text-brand-900"
-							to="/signin"
-						>
+						<Link to="/signin" className="text-brand-800 font-semibold">
 							Sign in
 						</Link>
 					</div>

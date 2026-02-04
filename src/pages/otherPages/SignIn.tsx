@@ -31,6 +31,7 @@ export default function SignIn() {
 	const [showPassword, setShowPassword] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
+	const [rememberMe, setRememberMe] = useState(false);
 
 	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
@@ -41,9 +42,13 @@ export default function SignIn() {
 			// ✅ capture response so we can store token
 			const data = (await signin({ email, password })) as SigninResponse;
 
-			// ✅ store JWT for Authorization header usage in other requests
+			// ✅ store JWT based on "Remember me"
 			if (data?.token) {
-				localStorage.setItem("token", data.token);
+				if (rememberMe) {
+					localStorage.setItem("token", data.token);
+				} else {
+					sessionStorage.setItem("token", data.token);
+				}
 			}
 
 			navigate("/calculate");
@@ -63,40 +68,41 @@ export default function SignIn() {
 	return (
 		<div className="bg-slate-200 min-h-[80vh] w-full flex items-center justify-center px-4 py-10">
 			<div className="w-full max-w-md bg-white rounded-2xl border shadow-soft overflow-hidden">
-				<div className="p-6 border-b text-center">
+				<div className="p-6 text-center">
 					<div className="w-12 h-12 mx-auto rounded bg-brand-700 text-white grid place-items-center font-bold">
 						T
 					</div>
 					<div className="mt-3 text-lg font-semibold">Welcome back!</div>
-					<div className="text-xs text-slate-600">Sign in to your account</div>
+					<div className="text-xs text-slate-500">Sign in to your account</div>
 				</div>
 
-				{/* SIGNIN FORM */}
-				<form className="p-6" onSubmit={onSubmit}>
+				{/* SIGN-IN FORM */}
+				<form className="p-5" onSubmit={onSubmit}>
 					{error && (
 						<div className="mb-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">
 							{error}
 						</div>
 					)}
 
-					{/* Email input */}
+					{/* EMAIL INPUT */}
 					<label className="text-xs font-semibold text-slate-700">Email</label>
 					<input
-						className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+						className="w-full box-border rounded border px-3 py-2 pr-12 text-base
+             			placeholder:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
 						placeholder="Enter your email"
 						required
 					/>
 
-					{/* Password input */}
+					{/* PASSWORD INPUT */}
 					<label className="text-xs font-semibold text-slate-700 mt-4 block">
 						Password
 					</label>
 
 					<div className="relative mt-1">
 						<input
-							className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+							className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm placeholder:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
 							type={showPassword ? "text" : "password"}
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
@@ -104,7 +110,7 @@ export default function SignIn() {
 							required
 						/>
 
-						{/* show/hide password button */}
+						{/* SHOW PASSWORD */}
 						<button
 							type="button"
 							onClick={() => setShowPassword((prev) => !prev)}
@@ -115,7 +121,29 @@ export default function SignIn() {
 						</button>
 					</div>
 
-					{/* sign-in button */}
+					{/* REMEMBER ME / FORGOT PASSWORD */}
+					<div className="mt-2 flex items-center justify-between text-xs">
+						<label className="flex items-center gap-2 cursor-pointer text-slate-600">
+							<input
+								type="checkbox"
+								checked={rememberMe}
+								onChange={(e) => setRememberMe(e.target.checked)}
+								className="mt-0.5 h-3.5 w-3.5"
+							/>
+							<span className="text-slate-500 text-center leading-relaxed">
+								Remember me
+							</span>
+						</label>
+
+						<Link
+							to="/forgot-password"
+							className="text-slate-500 text-center leading-relaxed hover:text-brand-700 font-medium"
+						>
+							Forgot password?
+						</Link>
+					</div>
+
+					{/* SIGN-IN BUTTON */}
 					<MotionButton className="mt-6 w-full">
 						<button
 							disabled={busy}
@@ -125,7 +153,7 @@ export default function SignIn() {
 						</button>
 					</MotionButton>
 
-					{/* sign-up no account */}
+					{/* SIGN-UP NO ACCOUNT */}
 					<div className="mt-4 text-xs text-slate-600 text-center">
 						Don&apos;t have an account?{" "}
 						<Link

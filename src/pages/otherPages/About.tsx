@@ -1,4 +1,7 @@
-// taxlator/src/pages/About.tsx
+// src/pages/otherPages/About.tsx
+
+// -----------------------------------------------
+
 import React from "react";
 
 function IconBox({

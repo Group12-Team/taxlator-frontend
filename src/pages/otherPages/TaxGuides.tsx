@@ -1,4 +1,7 @@
-// taxlator/src/pages/TaxGuides.tsx
+// src/pages/otherPages/TaxGuides.tsx
+
+// ----------------------------------------------
+
 import React from "react";
 
 function BookIcon({ className = "" }: { className?: string }) {
@@ -57,23 +60,23 @@ function GuideCard({ title, description, tags }: GuideCardProps) {
 export default function Guides() {
 	return (
 		<div className="min-h-[80vh] bg-slate-200 px-4 py-8">
-			<div className="mx-auto w-full max-w-3xl">
+			<div className="mx-auto w-full max-w-2xl">
 				{/* Header */}
 				<div className="text-center">
-					<div className="flex items-center justify-center text-brand-700">
-						<BookIcon className="h-7 w-7" />
+					<div className="flex items-center justify-center text-brand-400">
+						<BookIcon className="h-8 w-8" />
 					</div>
-					<h1 className="mt-2 text-2xl font-extrabold text-brand-800">
+					<h1 className="text-2xl font-extrabold tracking-wide text-brand-800">
 						Tax Guides &amp; Resources
 					</h1>
-					<p className="mt-1 text-sm text-slate-600">
+					<p className="mb-2 text-sm text-slate-600">
 						Learn about Nigerian tax regulations, calculations, and best
 						practices
 					</p>
 				</div>
 
 				{/* Cards */}
-				<div className="mt-6 space-y-4">
+				<div className="mt-2 space-y-4">
 					<GuideCard
 						title="Understanding PAYE in Nigeria"
 						description="Learn how Pay As You Earn (PAYE) works, who it applies to, and how it's calculated."
