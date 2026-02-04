@@ -9,10 +9,10 @@ import SectionTitle from "./SectionTitle";
 // Icons
 // ----------------------------------------------
 
-import frameArrow from "../../assets/frameArrow.png";
-import frameCarbon from "../../assets/frameCarbon.png";
-import frameUser from "../../assets/fameUser.png";
-import frameStars from "../../assets/frameStars.png";
+import frameArrow from "../../assets/landingPage/frameArrow.png";
+import frameCarbon from "../../assets/landingPage/frameCarbon.png";
+import frameUser from "../../assets/landingPage/fameUser.png";
+import frameStars from "../../assets/landingPage/frameStars.png";
 
 const features = [
 	{

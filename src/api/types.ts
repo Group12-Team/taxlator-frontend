@@ -2,8 +2,12 @@
 // -----------------------------------------------------------
 
 // -----------------------------------------------------------
-// Domain results
+// Generic JSON helpers
 // -----------------------------------------------------------
+
+export type JsonPrimitive = string | number | boolean | null;
+
+export type AnyJson = JsonPrimitive | { [key: string]: AnyJson } | AnyJson[];
 
 /* =========================
    PAYE / PIT

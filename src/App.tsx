@@ -3,7 +3,7 @@
 
 // imports
 // ----------------------------------------------
-import Shell from "./components/Shell";
+import Shell from "./components/layouts/Shell";
 import { useAuth } from "./state/useAuth";
 import AppRoutes from "./routes";
 

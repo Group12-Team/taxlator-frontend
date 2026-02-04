@@ -6,9 +6,9 @@
 
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../state/useAuth";
+import { useAuth } from "../../state/useAuth";
 import axios from "axios";
-import MotionButton from "../components/ui/MotionButton";
+import MotionButton from "../../components/ui/buttons/MotionButton";
 
 // ----------------------------------------------
 // ----------------------------------------------

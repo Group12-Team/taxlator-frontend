@@ -6,8 +6,8 @@
 
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import taxlatorLanding from "../../assets/taxlator-landing.jpg";
-import MotionButton from "../ui/MotionButton";
+import taxlatorLanding from "../../assets/landingPage/taxlator-landing.jpg";
+import MotionButton from "../ui/buttons/MotionButton";
 
 // ----------------------------------------------
 // ----------------------------------------------

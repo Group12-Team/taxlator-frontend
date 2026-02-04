@@ -5,19 +5,19 @@
 // ----------------------------------------------
 import { Route } from "react-router-dom";
 
-import Landing from "../pages/Landing";
-import Calculate from "../pages/Calculate";
-import About from "../pages/About";
-import TaxGuides from "../pages/TaxGuides";
-import Privacy_Policy from "../pages/Privacy_Policy";
-import Terms_Conditions from "../pages/Terms_Conditions";
+import Layout from "../pages/landingPage/Layout";
+import Calculate from "../pages/otherPages/Calculate";
+import About from "../pages/otherPages/About";
+import TaxGuides from "../pages/otherPages/TaxGuides";
+import Privacy_Policy from "../pages/otherPages/Privacy_Policy";
+import Terms_Conditions from "../pages/otherPages/Terms_Conditions";
 
 // ----------------------------------------------
 // ----------------------------------------------
 
 export default (
 	<>
-		<Route path="/" element={<Landing />} />
+		<Route path="/" element={<Layout />} />
 		<Route path="/calculate" element={<Calculate />} />
 		<Route path="/taxguide" element={<TaxGuides />} />
 		<Route path="/about" element={<About />} />

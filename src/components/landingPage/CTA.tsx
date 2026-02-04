@@ -7,7 +7,7 @@
 
 import { Link } from "react-router-dom";
 // import { motion } from "framer-motion";
-import MotionButton from "../../components/ui/MotionButton";
+import MotionButton from "../ui/buttons/MotionButton";
 
 // ----------------------------------------------
 // ----------------------------------------------

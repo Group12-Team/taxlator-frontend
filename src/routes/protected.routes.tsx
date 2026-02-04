@@ -5,8 +5,8 @@
 // ----------------------------------------------
 
 import { Route } from "react-router-dom";
-import RequireAuth from "../components/RequireAuth";
-import History from "../pages/History";
+import RequireAuth from "../state/RequireAuth";
+import History from "../pages/otherPages/History";
 
 // ----------------------------------------------
 // ----------------------------------------------

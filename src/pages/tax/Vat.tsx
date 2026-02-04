@@ -29,8 +29,8 @@ import { Check } from "lucide-react";
 // -----------------------------------------------------------
 
 import { parseNumber, formatNumber } from "../../utils/numberInput";
-import TaxProceedButton from "../../components/ui/TaxProceedButton";
-import CurrencyInput from "../../components/CurrencyInput";
+import TaxProceedButton from "../../components/ui/buttons/TaxProceedButton";
+import CurrencyInput from "../../components/ui/inputs/CurrencyInput";
 
 // -----------------------------------------------------------
 // -----------------------------------------------------------

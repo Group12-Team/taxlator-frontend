@@ -1,8 +1,11 @@
-// src/pages/History.tsx
+// src/pages/otherPages/History.tsx
+
+// ----------------------------------------------
+
 import { useEffect, useState, useCallback } from "react";
-import { api } from "../api/client";
-import { type HistoryItem } from "../api/types";
-import { useAuth } from "../state/auth.context";
+import { api } from "../../api/client";
+import type { HistoryItem } from "../../types/history.type";
+import { useAuth } from "../../state/auth.context";
 
 function typeLabel(t: HistoryItem["type"]) {
 	switch (t) {

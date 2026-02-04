@@ -1,44 +1,19 @@
-// taxlator/src/state/history.ts
-// -----------------------------------------------------------
+// src/state/history.ts
+// --------------------------------------------------
 
-export type HistoryType = "PAYE/PIT" | "VAT" | "FREELANCER" | "COMPANY";
+import { api } from "../api/client";
+import type { HistoryType, HistoryResult } from "../types/history.type";
 
-export type HistoryItem = {
-	id: string;
+interface AddHistoryPayload {
 	type: HistoryType;
-	createdAt: string;
-	input: unknown; // ✅ FIXED
-	result: unknown;
-};
+	input: unknown;
+	result: HistoryResult;
+}
 
-const KEY = "taxlator_history_v1";
-
-export function readHistory(): HistoryItem[] {
+export async function addHistory(payload: AddHistoryPayload) {
 	try {
-		const raw = localStorage.getItem(KEY);
-		if (!raw) return [];
-		const parsed: unknown = JSON.parse(raw);
-		return Array.isArray(parsed) ? (parsed as HistoryItem[]) : [];
+		await api.post("/history", payload);
 	} catch {
-		return [];
+		// silent fail – history should never break calculation UX
 	}
-}
-
-export function writeHistory(items: HistoryItem[]) {
-	localStorage.setItem(KEY, JSON.stringify(items));
-}
-
-export function addHistory(item: Omit<HistoryItem, "id" | "createdAt">) {
-	const items = readHistory();
-	const newItem: HistoryItem = {
-		id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-		createdAt: new Date().toISOString(),
-		...item,
-	};
-	writeHistory([newItem, ...items].slice(0, 50));
-	return newItem;
-}
-
-export function clearHistory() {
-	localStorage.removeItem(KEY);
 }

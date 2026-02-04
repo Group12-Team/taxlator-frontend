@@ -22,8 +22,8 @@ import FreelancerResultPanel from "./FreelancerResultPanel";
 
 import { parseNumber, formatNumber } from "../../utils/numberInput";
 import type { ApiResponse } from "../../api/types";
-import TaxProceedButton from "../../components/ui/TaxProceedButton";
-import CurrencyInput from "../../components/CurrencyInput";
+import TaxProceedButton from "../../components/ui/buttons/TaxProceedButton";
+import CurrencyInput from "../../components/ui/inputs/CurrencyInput";
 
 // -----------------------------------------------------------
 // -----------------------------------------------------------

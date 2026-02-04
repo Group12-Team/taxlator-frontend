@@ -5,9 +5,9 @@
 // ----------------------------------------------
 import { Route } from "react-router-dom";
 
-import SignIn from "../pages/SignIn";
-import SignUp from "../pages/SignUp";
-import VerifyEmail from "../pages/verifyEmail";
+import SignIn from "../pages/otherPages/SignIn";
+import SignUp from "../pages/otherPages/SignUp";
+import VerifyEmail from "../pages/otherPages/verifyEmail";
 
 // ----------------------------------------------
 // ----------------------------------------------

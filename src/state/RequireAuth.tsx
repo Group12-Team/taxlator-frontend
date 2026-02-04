@@ -1,6 +1,6 @@
 // src/components/RequireAuth.tsx
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "../state/useAuth";
+import { useAuth } from "./useAuth";
 import React from "react";
 
 type RequireAuthProps = {

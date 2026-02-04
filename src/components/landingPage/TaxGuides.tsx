@@ -9,9 +9,9 @@ import SectionTitle from "./SectionTitle";
 // Images
 // ----------------------------------------------
 
-import taxUpdate1 from "../../assets/taxUpdate1.png";
-import taxTipsUpdate from "../../assets/taxTipsUpdate.png";
-import companyIncomeTax from "../../assets/companyIncomeTax.png";
+import taxUpdate1 from "../../assets/landingPage/taxUpdate1.png";
+import taxTipsUpdate from "../../assets/landingPage/taxTipsUpdate.png";
+import companyIncomeTax from "../../assets/landingPage/companyIncomeTax.png";
 
 const taxGuides = [
 	{

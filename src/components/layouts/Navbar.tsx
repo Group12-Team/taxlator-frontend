@@ -1,8 +1,8 @@
 // src/components/Navbar.tsx
 import React, { useState } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
-import CalculateModal from "./CalculateModal";
-import { useAuth } from "../state/useAuth";
+import CalculateModal from "../../components/ui/modals/CalculateModal";
+import { useAuth } from "../../state/useAuth";
 import { Menu, X } from "lucide-react";
 
 function NavItem({
