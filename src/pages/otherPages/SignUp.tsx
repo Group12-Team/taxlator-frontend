@@ -80,7 +80,7 @@ export default function SignUp() {
 					)}
 
 					{/* FIRST NAME */}
-					<label className="text-xs font-semibold text-slate-700">
+					<label className="text-xs font-semibold text-slate-700 mb-1 block">
 						First Name
 					</label>
 					<input
@@ -92,7 +92,7 @@ export default function SignUp() {
 					/>
 
 					{/* LAST NAME */}
-					<label className="text-xs font-semibold text-slate-700 mt-3 block">
+					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
 						Last Name
 					</label>
 					<input
@@ -104,7 +104,7 @@ export default function SignUp() {
 					/>
 
 					{/* EMAIL */}
-					<label className="text-xs font-semibold text-slate-700 mt-4 block">
+					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
 						Email Address
 					</label>
 					<input
@@ -117,7 +117,7 @@ export default function SignUp() {
 					/>
 
 					{/* PASSWORD */}
-					<label className="text-xs font-semibold text-slate-700 mt-4 block">
+					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
 						Password
 					</label>
 					<div className="relative mt-1">
@@ -132,14 +132,14 @@ export default function SignUp() {
 						<button
 							type="button"
 							onClick={() => setShowPassword((p) => !p)}
-							className="absolute inset-y-0 right-3 flex items-center"
+							className="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-slate-700"
 						>
 							{showPassword ? "🙈" : "👁"}
 						</button>
 					</div>
 
 					{/* CONFIRM PASSWORD */}
-					<label className="text-xs font-semibold text-slate-700 mt-4 block">
+					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
 						Confirm Password
 					</label>
 					<div className="relative mt-1">

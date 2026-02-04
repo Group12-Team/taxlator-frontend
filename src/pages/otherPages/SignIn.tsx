@@ -85,7 +85,9 @@ export default function SignIn() {
 					)}
 
 					{/* EMAIL INPUT */}
-					<label className="text-xs font-semibold text-slate-700">Email</label>
+					<label className="text-xs font-semibold text-slate-700 mb-1 block">
+						Email
+					</label>
 					<input
 						className="w-full box-border rounded border px-3 py-2 pr-12 text-base
              			placeholder:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
@@ -96,7 +98,7 @@ export default function SignIn() {
 					/>
 
 					{/* PASSWORD INPUT */}
-					<label className="text-xs font-semibold text-slate-700 mt-4 block">
+					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
 						Password
 					</label>
 
