@@ -146,7 +146,7 @@ export default function SignIn() {
 					</div>
 
 					{/* SIGN-IN BUTTON */}
-					<MotionButton className="mt-6 w-full">
+					<MotionButton className="mt-2 w-full">
 						<button
 							disabled={busy}
 							className="mt-5 w-full rounded bg-brand-800 text-white py-2.5 text-sm font-semibold hover:bg-brand-900 disabled:opacity-60"
