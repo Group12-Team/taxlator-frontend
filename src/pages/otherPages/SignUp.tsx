@@ -8,6 +8,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";
 import axios from "axios";
 import MotionButton from "../../components/ui/buttons/MotionButton";
+import inputStyles from "../../components/ui/inputs/InputStyles";
+import FormButton from "../../components/ui/buttons/FormButton";
 
 // ----------------------------------------------
 
@@ -20,7 +22,6 @@ export default function SignUp() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
-
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -28,6 +29,15 @@ export default function SignUp() {
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 
+	// --------------------------- FORM VALIDATION FOR SIGN UP BUTTON ---------------------------
+	const hasNames = firstName.trim().length > 0 && lastName.trim().length > 0;
+
+	const hasValidPassword = password.length >= 8 && password === confirmPassword;
+
+	const isFormValid =
+		hasNames && email.trim().length > 0 && hasValidPassword && agree && !busy;
+
+	// ----------------------------------------------------------------------
 	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		setError("");
@@ -84,7 +94,7 @@ export default function SignUp() {
 						First Name
 					</label>
 					<input
-						className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm placeholder:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+						className={inputStyles.inputBase}
 						value={firstName}
 						onChange={(e) => setFirstName(e.target.value)}
 						placeholder="Enter your first name"
@@ -96,7 +106,7 @@ export default function SignUp() {
 						Last Name
 					</label>
 					<input
-						className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm placeholder:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+						className={inputStyles.inputBase}
 						value={lastName}
 						onChange={(e) => setLastName(e.target.value)}
 						placeholder="Enter your last name"
@@ -109,7 +119,7 @@ export default function SignUp() {
 					</label>
 					<input
 						type="email"
-						className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm placeholder:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+						className={inputStyles.inputBase}
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
 						placeholder="Enter your email address"
@@ -123,7 +133,7 @@ export default function SignUp() {
 					<div className="relative mt-1">
 						<input
 							type={showPassword ? "text" : "password"}
-							className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm placeholder:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+							className={inputStyles.inputBase}
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
 							placeholder="Enter your password"
@@ -145,7 +155,7 @@ export default function SignUp() {
 					<div className="relative mt-1">
 						<input
 							type={showConfirmPassword ? "text" : "password"}
-							className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm placeholder:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+							className={inputStyles.inputBase}
 							value={confirmPassword}
 							onChange={(e) => setConfirmPassword(e.target.value)}
 							placeholder="Confirm your password"
@@ -154,14 +164,14 @@ export default function SignUp() {
 						<button
 							type="button"
 							onClick={() => setShowConfirmPassword((p) => !p)}
-							className="absolute inset-y-0 right-3 flex items-center"
+							className="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-slate-700"
 						>
 							{showConfirmPassword ? "🙈" : "👁"}
 						</button>
 					</div>
 
 					{/* TERMS AND CONDITIONS / PRIVACY POLICY */}
-					<div className="mt-2 flex items-start justify-center gap-2 text-xs">
+					<div className="mt-2 flex items-start gap-2 text-xs">
 						<input
 							type="checkbox"
 							checked={agree}
@@ -188,12 +198,9 @@ export default function SignUp() {
 
 					{/* SIGN-UP BUTTON */}
 					<MotionButton className="mt-7 w-full">
-						<button
-							disabled={busy}
-							className="w-full rounded bg-brand-800 text-white py-2.5 text-sm font-semibold hover:bg-brand-900 disabled:opacity-60"
-						>
+						<FormButton enabled={isFormValid} loading={busy}>
 							{busy ? "Creating..." : "Sign Up"}
-						</button>
+						</FormButton>
 					</MotionButton>
 
 					<div className="mt-4 text-xs text-slate-600 text-center">

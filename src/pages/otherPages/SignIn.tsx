@@ -9,6 +9,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";
 import axios from "axios";
 import MotionButton from "../../components/ui/buttons/MotionButton";
+import inputStyles from "../../components/ui/inputs/InputStyles";
+import FormButton from "../../components/ui/buttons/FormButton";
 
 //  types
 // ----------------------------------------------
@@ -29,9 +31,13 @@ export default function SignIn() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
+	const [rememberMe, setRememberMe] = useState(false);
+
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
-	const [rememberMe, setRememberMe] = useState(false);
+
+	const isFormValid =
+		email.trim().length > 0 && password.trim().length >= 8 && !busy;
 
 	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
@@ -89,8 +95,7 @@ export default function SignIn() {
 						Email
 					</label>
 					<input
-						className="w-full box-border rounded border px-3 py-2 pr-12 text-base
-             			placeholder:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+						className={inputStyles.inputBase}
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
 						placeholder="Enter your email"
@@ -104,7 +109,7 @@ export default function SignIn() {
 
 					<div className="relative mt-1">
 						<input
-							className="w-full box-border rounded border px-3 py-2 pr-12 text-base sm:text-sm placeholder:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+							className={inputStyles.inputBase}
 							type={showPassword ? "text" : "password"}
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
@@ -146,13 +151,10 @@ export default function SignIn() {
 					</div>
 
 					{/* SIGN-IN BUTTON */}
-					<MotionButton className="mt-2 w-full">
-						<button
-							disabled={busy}
-							className="mt-5 w-full rounded bg-brand-800 text-white py-2.5 text-sm font-semibold hover:bg-brand-900 disabled:opacity-60"
-						>
+					<MotionButton className="mt-7 w-full">
+						<FormButton enabled={isFormValid} loading={busy}>
 							{busy ? "Signing in..." : "Sign In"}
-						</button>
+						</FormButton>
 					</MotionButton>
 
 					{/* SIGN-UP NO ACCOUNT */}

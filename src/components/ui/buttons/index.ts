@@ -3,4 +3,5 @@
 // ----------------------------------------------
 
 export { default as MotionButton } from "./MotionButton";
-export { default as TaxProceedButton } from "./TaxProceedButton";
+export { default as CalculateButton } from "./CalculateButton";
+export { default as FormButton } from "./FormButton";

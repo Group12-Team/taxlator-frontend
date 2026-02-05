@@ -1,6 +1,5 @@
-// taxlator/src/pages/tax/Vat.tsx
+// src/pages/tax/Vat.tsx
 // -----------------------------------------------------------
-
 import { useMemo, useState } from "react";
 import TaxPageLayout from "./TaxPageLayout";
 import { api } from "../../api/client";
@@ -8,29 +7,28 @@ import { ENDPOINTS } from "../../api/endpoints";
 import { addHistory } from "../../state/history";
 import { useAuth } from "../../state/useAuth";
 import VatResultPanel from "./VatResultPanel";
-
-// Types
-// import type {
-// 	VatCalculatePayload,
-// 	VatCalculationType,
-// 	VatTransactionType,
-// 	ApiSuccess,
-// 	ApiFail,
-// } from "../../api/types";
-
-// -----------------------------------------------------------
-// External Helpers Imports
-// -----------------------------------------------------------
-
 import { Check } from "lucide-react";
 
-// -----------------------------------------------------------
 // Helpers Imports
 // -----------------------------------------------------------
-
-import { parseNumber, formatNumber } from "../../utils/numberInput";
-import TaxProceedButton from "../../components/ui/buttons/TaxProceedButton";
+import {
+	parseNumber,
+	formatNumber,
+	onlyNumbers,
+} from "../../utils/numberInput";
+import CalculateButton from "../../components/ui/buttons/CalculateButton";
 import CurrencyInput from "../../components/ui/inputs/CurrencyInput";
+
+// types
+// -----------------------------------------------------------
+import type {
+	VatCalculatePayload,
+	VatCalculationType,
+	VatTransactionType,
+	ApiSuccess,
+	ApiFail,
+} from "../../api/types";
+import type { HistoryResult } from "../../types/history.type";
 
 // -----------------------------------------------------------
 // -----------------------------------------------------------
@@ -43,13 +41,15 @@ export default function Vat() {
 	const [transactionAmount, setTransactionAmount] = useState("");
 	const [calculationType, setCalculationType] =
 		useState<VatCalculationType>("add");
-	const [transactionType, setTransactionType] = useState("");
+	const [transactionType, setTransactionType] = useState<VatTransactionType>(
+		"Domestic sale/Purchase",
+	);
 
 	// request state triad
 	// ---------------------------
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
-	const [result, setResult] = useState<unknown>(null);
+	const [result, setResult] = useState<HistoryResult | null>(null);
 
 	// derived numeric values
 	// ---------------------------
@@ -58,6 +58,11 @@ export default function Vat() {
 		[transactionAmount],
 	);
 
+	// form validation, proceed button enabled
+	// ---------------------------
+	const isCalculationValid = transactionAmountNumber > 0 && !busy;
+
+	// -----------------------------------------------------------
 	async function calculate() {
 		setError("");
 		setBusy(true);
@@ -83,22 +88,20 @@ export default function Vat() {
 			);
 
 			// Typed success guard
-			// ---------------------------
 			if (!data.success) {
 				setError(data.message || data.error || "VAT calculation failed");
 				return;
 			}
 
 			// Fully typed result
-			// ---------------------------
-			setResult(data.data);
+			const typedResult = data.data as HistoryResult;
+			setResult(typedResult);
 
 			// Log to history
-			// ---------------------------
 			addHistory({
 				type: "VAT",
 				input: payload,
-				result: data.data,
+				result: typedResult,
 			});
 		} catch (err: unknown) {
 			const e = err as {
@@ -117,6 +120,7 @@ export default function Vat() {
 		}
 	}
 
+	// -----------------------------------------------------------
 	return (
 		<TaxPageLayout
 			title="VAT Calculation"
@@ -142,7 +146,7 @@ export default function Vat() {
 				id="transactionAmount"
 				label="Transaction Amount"
 				value={formatNumber(transactionAmount)}
-				onChange={(v) => setTransactionAmount(v.replace(/,/g, ""))}
+				onChange={(v) => setTransactionAmount(onlyNumbers(v))}
 			/>
 
 			{/* Add/Remove toggle */}
@@ -223,7 +227,12 @@ export default function Vat() {
 				</div>
 			</div>
 
-			<TaxProceedButton onClick={calculate} loading={busy} />
+			{/* Proceed/calculate button */}
+			<CalculateButton
+				onClick={calculate}
+				loading={busy}
+				enabled={isCalculationValid}
+			/>
 		</TaxPageLayout>
 	);
 }

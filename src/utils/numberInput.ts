@@ -1,21 +1,11 @@
 // src/utils/numberInput.ts
 
-// -----------------------------------------------------------
-// Number input helpers
-// -----------------------------------------------------------
-
-/**
- * Keep only digits (0–9)
- * Useful for strict numeric inputs like OTP, phone numbers, etc.
- */
+// ----------------------- Only Numbers -----------------------
 export function onlyNumbers(value: string): string {
 	return value.replace(/\D/g, "");
 }
 
-/**
- * Format number string with commas for display
- * Example: "1250000" -> "1,250,000"
- */
+// ----------------------- Format Number with Commas -----------------------
 export function formatNumber(value: string): string {
 	if (!value) return "";
 
@@ -28,10 +18,7 @@ export function formatNumber(value: string): string {
 	return n.toLocaleString("en-NG");
 }
 
-/**
- * Parse formatted number back to a safe number
- * Example: "1,250,000" -> 1250000
- */
+// ----------------------- Parse Number from Formatted String -----------------------
 export function parseNumber(value: string): number {
 	const cleaned = value.replace(/,/g, "").trim();
 	if (!cleaned) return 0;
@@ -40,10 +27,7 @@ export function parseNumber(value: string): number {
 	return Number.isFinite(n) ? n : 0;
 }
 
-/**
- * Format a number as Nigerian Naira currency
- * Example: 1250000 -> "₦1,250,000"
- */
+// ----------------------- Currency Formatting -----------------------
 export function formatCurrency(amount: number): string {
 	if (!Number.isFinite(amount)) return "₦0";
 	return `₦${amount.toLocaleString("en-NG")}`;

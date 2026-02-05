@@ -1,4 +1,6 @@
 // src/utils/formatCurrency.ts
+
+// -----------------------------------------------------------
 export function formatCurrency(amount: number): string {
 	if (!Number.isFinite(amount)) return "₦0";
 

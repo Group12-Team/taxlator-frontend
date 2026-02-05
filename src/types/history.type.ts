@@ -1,6 +1,6 @@
 // src/types/history.type.ts
-// --------------------------------------------------
 
+// --------------------------------------------------
 import type {
 	PayeResult,
 	FreelancerResult,
@@ -8,10 +8,8 @@ import type {
 	VatResult,
 } from "../api/types";
 
-// ----------------------------------
 // History domain types
 // ----------------------------------
-
 export type HistoryType = "PAYE/PIT" | "VAT" | "FREELANCER" | "CIT";
 
 export type HistoryResult =

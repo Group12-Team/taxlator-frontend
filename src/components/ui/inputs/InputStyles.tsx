@@ -1,14 +1,17 @@
 // src/components/ui/inputs/InputStyles.tsx
 
 // --------------------------------------------
-
 const inputStyles = {
 	inputBase:
-		"w-full box-border rounded border border-slate-300 px-3 py-2 text-base sm:text-sm " +
+		"w-full box-border rounded border border-slate-300 px-3 py-2 " +
+		"text-base sm:text-sm " +
+		"placeholder:text-xs sm:placeholder:text-sm placeholder:text-slate-400 " +
 		"focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0",
 
 	inputWithPrefix:
-		"w-full box-border rounded border border-slate-300 pl-8 pr-3 py-2 text-base sm:text-sm " +
+		"w-full box-border rounded border border-slate-300 pl-8 pr-3 py-2 " +
+		"text-base sm:text-sm " +
+		"placeholder:text-xs sm:placeholder:text-sm placeholder:text-slate-400 " +
 		"focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0",
 
 	currencyPrefix:

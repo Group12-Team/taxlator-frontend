@@ -10,20 +10,21 @@ import type { CitCalculatePayload, CitResult } from "../../api/types";
 import { useAuth } from "../../state/useAuth";
 import CompanyResultPanel from "./CompanyResultPanel";
 
-// -----------------------------------------------------------
 // Helpers Imports
 // -----------------------------------------------------------
-import { parseNumber, formatNumber } from "../../utils/numberInput";
+import {
+	parseNumber,
+	formatNumber,
+	onlyNumbers,
+} from "../../utils/numberInput";
 import type { ApiResponse } from "../../api/types";
-import TaxProceedButton from "../../components/ui/buttons/TaxProceedButton";
+import CalculateButton from "../../components/ui/buttons/CalculateButton";
 import CurrencyInput from "../../components/ui/inputs/CurrencyInput";
 import CompanySizeSelect, {
 	type CompanySize,
 } from "../../components/ui/inputs/CompanySizeSelect";
 
 // -----------------------------------------------------------
-// -----------------------------------------------------------
-
 export default function Company() {
 	const { authenticated } = useAuth();
 
@@ -63,6 +64,10 @@ export default function Company() {
 		[accountingProfit],
 	);
 
+	// form validation, proceed button enabled
+	// ---------------------------
+	const isCalculationValid = annualTurnoverNumber > 0 && !busy;
+
 	// Clear accounting profit if not multinational
 	// ---------------------------
 	useEffect(() => {
@@ -100,7 +105,7 @@ export default function Company() {
 			setResult(data.data);
 
 			addHistory({
-				type: "COMPANY",
+				type: "CIT",
 				input: payload,
 				result: data.data,
 			});
@@ -134,7 +139,7 @@ export default function Company() {
 				id="annual-turnover"
 				label="Annual Turnover"
 				value={formatNumber(annualTurnover)}
-				onChange={(v) => setAnnualTurnover(v.replace(/,/g, ""))}
+				onChange={(v) => setAnnualTurnover(onlyNumbers(v))}
 			/>
 
 			{/* Fixed Assets */}
@@ -142,7 +147,7 @@ export default function Company() {
 				id="fixed-assets"
 				label="Fixed Assets"
 				value={formatNumber(fixedAssets)}
-				onChange={(v) => setFixedAssets(v.replace(/,/g, ""))}
+				onChange={(v) => setFixedAssets(onlyNumbers(v))}
 			/>
 
 			{/* Taxable Profit */}
@@ -150,7 +155,7 @@ export default function Company() {
 				id="taxable-profit"
 				label="Taxable Profit"
 				value={formatNumber(taxableProfit)}
-				onChange={(v) => setTaxableProfit(v.replace(/,/g, ""))}
+				onChange={(v) => setTaxableProfit(onlyNumbers(v))}
 			/>
 
 			{/* Company Size */}
@@ -162,12 +167,16 @@ export default function Company() {
 					id="accounting-profit"
 					label="Accounting Profit"
 					value={formatNumber(accountingProfit)}
-					onChange={(v) => setAccountingProfit(v.replace(/,/g, ""))}
+					onChange={(v) => setAccountingProfit(onlyNumbers(v))}
 				/>
 			)}
 
-			{/* Proceed */}
-			<TaxProceedButton onClick={calculate} loading={busy} />
+			{/* Proceed/calculate button */}
+			<CalculateButton
+				onClick={calculate}
+				loading={busy}
+				enabled={isCalculationValid}
+			/>
 		</TaxPageLayout>
 	);
 }

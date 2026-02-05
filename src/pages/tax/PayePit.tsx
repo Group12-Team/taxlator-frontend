@@ -11,18 +11,16 @@ import { addHistory } from "../../state/history";
 import type { PayePitCalculatePayload, PayeResult } from "../../api/types";
 import { useAuth } from "../../state/useAuth";
 import PayePitResultPanel from "./PayePitResultPanel";
-
-// -----------------------------------------------------------
-// Helpers Imports
-// -----------------------------------------------------------
-import { parseNumber, formatNumber } from "../../utils/numberInput";
-import type { ApiResponse } from "../../api/types";
-import TaxProceedButton from "../../components/ui/buttons/TaxProceedButton";
+import CalculateButton from "../../components/ui/buttons/CalculateButton";
 import CurrencyInput from "../../components/ui/inputs/CurrencyInput";
+import {
+	parseNumber,
+	formatNumber,
+	onlyNumbers,
+} from "../../utils/numberInput";
+import type { ApiResponse } from "../../api/types";
 
 // -----------------------------------------------------------
-// -----------------------------------------------------------
-
 export default function PayePit() {
 	const { authenticated } = useAuth();
 
@@ -46,11 +44,17 @@ export default function PayePit() {
 		() => parseNumber(grossAnnualIncome),
 		[grossAnnualIncome],
 	);
+
 	const rentNumber = useMemo(() => parseNumber(annualRent), [annualRent]);
+	
 	const otherDeductionsNumber = useMemo(
 		() => parseNumber(otherDeductions),
 		[otherDeductions],
 	);
+
+	// form validation, proceed button enabled
+	// ---------------------------
+	const isCalculationValid = grossIncomeNumber > 0 && !busy;
 
 	async function calculate() {
 		setError("");
@@ -137,7 +141,7 @@ export default function PayePit() {
 				id="grossAnnualIncome"
 				label="Gross Annual Income"
 				value={formatNumber(grossAnnualIncome)}
-				onChange={(v) => setGrossAnnualIncome(v.replace(/,/g, ""))}
+				onChange={(v) => setGrossAnnualIncome(onlyNumbers(v))}
 			/>
 
 			{/* Pension */}
@@ -198,7 +202,7 @@ export default function PayePit() {
 					</>
 				}
 				value={formatNumber(annualRent)}
-				onChange={(v) => setAnnualRent(v.replace(/,/g, ""))}
+				onChange={(v) => setAnnualRent(onlyNumbers(v))}
 				placeholder="Input Annual Rent"
 				placeholderClassName="placeholder:text-xs placeholder:text-slate-400 "
 			/>
@@ -208,11 +212,15 @@ export default function PayePit() {
 				id="otherDeductions"
 				label="Other Deductions"
 				value={formatNumber(otherDeductions)}
-				onChange={(v) => setOtherDeductions(v.replace(/,/g, ""))}
+				onChange={(v) => setOtherDeductions(onlyNumbers(v))}
 			/>
 
 			{/* Proceed/calculate button */}
-			<TaxProceedButton onClick={calculate} loading={busy} />
+			<CalculateButton
+				onClick={calculate}
+				loading={busy}
+				enabled={isCalculationValid}
+			/>
 		</TaxPageLayout>
 	);
 }

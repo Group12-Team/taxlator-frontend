@@ -1,9 +1,6 @@
 // src/pages/tax/FreeLancer.tsx
-// -----------------------------------------------------------
 
-// imports
 // -----------------------------------------------------------
-
 import { useMemo, useState } from "react";
 import TaxPageLayout from "./TaxPageLayout";
 import { api } from "../../api/client";
@@ -16,18 +13,18 @@ import type {
 import { useAuth } from "../../state/useAuth";
 import FreelancerResultPanel from "./FreelancerResultPanel";
 
-// -----------------------------------------------------------
 // Helpers
 // -----------------------------------------------------------
-
-import { parseNumber, formatNumber } from "../../utils/numberInput";
+import {
+	parseNumber,
+	formatNumber,
+	onlyNumbers,
+} from "../../utils/numberInput";
 import type { ApiResponse } from "../../api/types";
-import TaxProceedButton from "../../components/ui/buttons/TaxProceedButton";
+import CalculateButton from "../../components/ui/buttons/CalculateButton";
 import CurrencyInput from "../../components/ui/inputs/CurrencyInput";
 
 // -----------------------------------------------------------
-// -----------------------------------------------------------
-
 export default function FreeLancer() {
 	const { authenticated } = useAuth();
 
@@ -60,6 +57,10 @@ export default function FreeLancer() {
 		() => parseNumber(totalBusinessExpenses),
 		[totalBusinessExpenses],
 	);
+
+	// form validation, proceed button enabled
+	// ---------------------------
+	const isCalculationValid = grossIncomeNumber > 0 && !busy;
 
 	async function calculate() {
 		setError("");
@@ -131,14 +132,14 @@ export default function FreeLancer() {
 				id="grossAnnualIncome"
 				label="Gross Annual Income"
 				value={formatNumber(grossAnnualIncome)}
-				onChange={(v) => setGrossAnnualIncome(v.replace(/,/g, ""))}
+				onChange={(v) => setGrossAnnualIncome(onlyNumbers(v))}
 			/>
 
 			<CurrencyInput
 				id="pensionContribution"
 				label="Pension Contribution"
 				value={formatNumber(pensionContribution)}
-				onChange={(v) => setPensionContribution(v.replace(/,/g, ""))}
+				onChange={(v) => setPensionContribution(onlyNumbers(v))}
 			/>
 
 			<div className="mt-3 rounded-xl border p-4 bg-white">
@@ -165,13 +166,18 @@ export default function FreeLancer() {
 						id="businessExpenses"
 						label="Total Business Expenses"
 						value={formatNumber(totalBusinessExpenses)}
-						onChange={(v) => setTotalBusinessExpenses(v.replace(/,/g, ""))}
+						onChange={(v) => setTotalBusinessExpenses(onlyNumbers(v))}
 						labelClassName="text-xs font-medium text-slate-400"
 					/>
 				)}
 			</div>
 
-			<TaxProceedButton onClick={calculate} loading={busy} />
+			{/* Proceed/calculate button */}
+			<CalculateButton
+				onClick={calculate}
+				loading={busy}
+				enabled={isCalculationValid}
+			/>
 		</TaxPageLayout>
 	);
 }
