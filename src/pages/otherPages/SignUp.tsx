@@ -10,6 +10,7 @@ import axios from "axios";
 import MotionButton from "../../components/ui/buttons/MotionButton";
 import inputStyles from "../../components/ui/inputs/InputStyles";
 import FormButton from "../../components/ui/buttons/FormButton";
+import PasswordHelper from "../../components/ui/inputs/PasswordHelper";
 
 // ----------------------------------------------
 
@@ -28,6 +29,9 @@ export default function SignUp() {
 	const [agree, setAgree] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
+
+	// ---------------------------- PASSWORD HINT/FOCUS STATE ----------------------------
+	const [passwordFocused, setPasswordFocused] = useState(false);
 
 	// --------------------------- FORM VALIDATION FOR SIGN UP BUTTON ---------------------------
 	const hasNames = firstName.trim().length > 0 && lastName.trim().length > 0;
@@ -130,12 +134,15 @@ export default function SignUp() {
 					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
 						Password
 					</label>
+
 					<div className="relative mt-1">
 						<input
 							type={showPassword ? "text" : "password"}
 							className={inputStyles.inputBase}
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
+							onFocus={() => setPasswordFocused(true)}
+							onBlur={() => setPasswordFocused(false)}
 							placeholder="Enter your password"
 							required
 						/>
@@ -147,6 +154,7 @@ export default function SignUp() {
 							{showPassword ? "🙈" : "👁"}
 						</button>
 					</div>
+					<PasswordHelper visible={passwordFocused} />
 
 					{/* CONFIRM PASSWORD */}
 					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
