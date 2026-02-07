@@ -1,18 +1,13 @@
 // src/api/types.ts
 // -----------------------------------------------------------
 
-// -----------------------------------------------------------
 // Generic JSON helpers
-// -----------------------------------------------------------
-
 export type JsonPrimitive = string | number | boolean | null;
-
 export type AnyJson = JsonPrimitive | { [key: string]: AnyJson } | AnyJson[];
 
 /* =========================
    PAYE / PIT
 ========================= */
-
 export interface PayeDeduction {
 	key: string;
 	label: string;
@@ -33,28 +28,19 @@ export interface PayeResult {
 	taxType: "PAYE/PIT";
 	frequency: "annual" | "monthly";
 	grossIncome: number;
-
-	// Consolidated Relief Allowance
 	cra: number;
-
-	// Deductions
 	deductions: PayeDeduction[];
 	totalDeductions: number;
-
-	// Tax
 	taxableIncome: number;
 	totalTax: number;
 	netIncome: number;
 	effectiveTaxRate: number;
-
-	// Breakdown
 	computation: TaxBand[];
 }
 
 /* =========================
    FREELANCER
 ========================= */
-
 export interface FreelancerResult {
 	taxType: "FREELANCER";
 	grossIncome: number;
@@ -63,14 +49,12 @@ export interface FreelancerResult {
 	totalTax: number;
 	netIncome: number;
 	effectiveTaxRate: number;
-	// Breakdown
 	computation: TaxBand[];
 }
 
 /* =========================
    COMPANY (CIT)
 ========================= */
-
 export interface CitResult {
 	taxType: "CIT";
 	companySize: CompanySize;
@@ -78,16 +62,19 @@ export interface CitResult {
 	taxableProfit: number;
 	accountingProfit: number;
 
-	taxPayable: number;
-	effectiveTaxRate: number;
+	// Added for frontend display
+	appliedRate: number; // e.g., 0.30 for 30%
+	totalTax: number; // final tax due
+	netProfitAfterTax: number; // taxableProfit - totalTax
+	minimumTaxApplied?: boolean; // true if minimum tax applied
 
+	effectiveTaxRate: number; // raw effective rate
 	computation: TaxBand[];
 }
 
 /* =========================
    VAT
 ========================= */
-
 export interface VatResult {
 	transactionAmount: number;
 	vatAmount: number;
@@ -96,14 +83,9 @@ export interface VatResult {
 	transactionType: VatTransactionType;
 }
 
-// -----------------------------------------------------------
-// API payloads
-// -----------------------------------------------------------
-
 /* =========================
-   PAYE / PIT
+   API payloads
 ========================= */
-
 export interface PayePitCalculatePayload {
 	taxType: "PAYE/PIT";
 	grossIncome: number;
@@ -114,20 +96,12 @@ export interface PayePitCalculatePayload {
 	otherDeductions: number;
 }
 
-/* =========================
-   FREELANCER
-========================= */
-
 export interface FreelancerCalculatePayload {
 	taxType: "FREELANCER";
 	grossIncome: number;
 	pension: number;
 	expenses: number;
 }
-
-/* =========================
-   COMPANY (CIT)
-========================= */
 
 export interface CitCalculatePayload {
 	taxType: "CIT";
@@ -138,42 +112,30 @@ export interface CitCalculatePayload {
 	accountingProfit: number;
 }
 
-/* =========================
-   VAT
-========================= */
-
 export interface VatCalculatePayload {
 	transactionAmount: number;
 	calculationType: VatCalculationType;
 	transactionType: VatTransactionType;
 }
 
-// -----------------------------------------------------------
-// Shared enums / unions
-// -----------------------------------------------------------
-
 /* =========================
    COMPANY SIZE
 ========================= */
-
-export type CompanySize = "SMALL" | "OTHER" | "MULTINATIONAL";
+export type CompanySize = "Small" | "Medium" | "Multinational";
 
 /* =========================
    VAT
 ========================= */
-
 export type VatCalculationType = "add" | "remove";
-
 export type VatTransactionType =
 	| "Domestic sale/Purchase"
 	| "Export/International"
 	| "Digital Services"
 	| "Exempt";
 
-// -----------------------------------------------------------
-// API envelope
-// -----------------------------------------------------------
-
+/* =========================
+   API envelope
+========================= */
 export type ApiSuccess<T> = {
 	success: true;
 	data: T;
@@ -187,5 +149,3 @@ export type ApiFail = {
 };
 
 export type ApiResponse<T> = ApiSuccess<T> | ApiFail;
-// -----------------------------------------------------------
-// -----------------------------------------------------------

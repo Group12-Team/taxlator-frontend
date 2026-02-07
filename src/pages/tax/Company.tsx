@@ -71,7 +71,7 @@ export default function Company() {
 	// Clear accounting profit if not multinational
 	// ---------------------------
 	useEffect(() => {
-		if (companySize !== "MULTINATIONAL") {
+		if (companySize !== "Multinational") {
 			setAccountingProfit("");
 		}
 	}, [companySize]);
@@ -162,7 +162,7 @@ export default function Company() {
 			<CompanySizeSelect value={companySize} onChange={setCompanySize} />
 
 			{/* Accounting Profit (Multinationals only) */}
-			{companySize === "MULTINATIONAL" && (
+			{companySize === "Multinational" && (
 				<CurrencyInput
 					id="accounting-profit"
 					label="Accounting Profit"

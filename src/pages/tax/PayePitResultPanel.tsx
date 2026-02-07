@@ -1,7 +1,6 @@
 // src/pages/tax/PayePitResultPanel.tsx
 // -----------------------------------------------------------
 
-// imports
 // -----------------------------------------------------------
 import { useState } from "react";
 import type { PayeResult } from "../../api/types";

@@ -1,9 +1,14 @@
+// src/components/ui/inputs/CompanySizeSelect.tsx
+// -----------------------------------------------------------
+
+// -----------------------------------------------------------
 import { useState } from "react";
+import type { CompanySize as ApiCompanySize } from "../../../api/types";
 
 // --------------------------------------------
 // Types
 // --------------------------------------------
-export type CompanySize = "SMALL" | "OTHER" | "MULTINATIONAL";
+export type CompanySize = ApiCompanySize;
 
 // --------------------------------------------
 // Options (TYPED)
@@ -13,15 +18,15 @@ const COMPANY_SIZE_OPTIONS: {
 	label: string;
 }[] = [
 	{
-		value: "SMALL",
+		value: "Small",
 		label: "Small Company (0%)",
 	},
 	{
-		value: "OTHER",
-		label: "Other Companies (30%)",
+		value: "Medium",
+		label: "Medium Companies (30%)",
 	},
 	{
-		value: "MULTINATIONAL",
+		value: "Multinational",
 		label: "Multinational Company (30% vs 15% Min. Tax)",
 	},
 ];
