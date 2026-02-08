@@ -51,6 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			authenticated,
 
 			async signup(payload: SignUpPayload) {
+				console.log("Signup payload:", payload); // <--- should include confirmPassword
 				const { data } = await api.post(ENDPOINTS.signup, payload);
 				return data;
 			},
