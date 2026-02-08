@@ -1,11 +1,16 @@
 // taxlator/src/api/client.ts
 
-// -----------------------------------------------
+// -------------------------------
 import axios from "axios";
 import type { AnyJson } from "./types";
 
 // -------------------------------- AXIOS CLIENT SETUP --------------------------------
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+// Fallback to Render backend if env var is missing
+const API_BASE =
+	import.meta.env.VITE_API_BASE_URL ||
+	"https://group12-taxlator-api.onrender.com";
+
+console.log("Using API_BASE =", API_BASE); // <-- Confirm this prints correctly in deployed site
 
 const TOKEN_KEY = "taxlator_token";
 
