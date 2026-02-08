@@ -6,6 +6,28 @@ export type JsonPrimitive = string | number | boolean | null;
 export type AnyJson = JsonPrimitive | { [key: string]: AnyJson } | AnyJson[];
 
 /* =========================
+   AUTH TYPES
+========================= */
+export interface SignInPayload {
+	email: string;
+	password: string;
+}
+
+export interface SignUpPayload {
+	email: string;
+	password: string;
+	fullName?: string;
+}
+
+export interface User {
+	id: string;
+	email: string;
+	fullName?: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+/* =========================
    PAYE / PIT
 ========================= */
 export interface PayeDeduction {
