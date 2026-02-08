@@ -1,7 +1,10 @@
 // src/state/auth.context.ts
+
+// --------------------------------------
 import { createContext, useContext } from "react";
 import type { AnyJson, SignInPayload, SignUpPayload, User } from "../api/types";
 
+// ------------------------------ AUTH CONTEXT & HOOKS --------------------------------
 export type AuthContextValue = {
 	user: User | null;
 	loading: boolean;

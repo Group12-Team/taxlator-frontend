@@ -1,4 +1,6 @@
 // src/state/auth.provider.tsx
+
+// --------------------------------------
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import {
 	api,
@@ -12,6 +14,7 @@ import { AuthCtx } from "./auth.context";
 import type { AuthContextValue } from "./auth.context";
 import type { User } from "../api/types";
 
+// ------------------------------ AUTH PROVIDER COMPONENT --------------------------------
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);

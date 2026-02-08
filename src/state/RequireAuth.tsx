@@ -1,4 +1,6 @@
 // src/components/RequireAuth.tsx
+
+// --------------------------------------
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "./useAuth";
 import React from "react";
@@ -7,6 +9,7 @@ type RequireAuthProps = {
 	children: React.ReactNode;
 };
 
+// ------------------------------ REQUIRE AUTH COMPONENT --------------------------------
 export default function RequireAuth({ children }: RequireAuthProps) {
 	const { authenticated, loading } = useAuth();
 	const location = useLocation();

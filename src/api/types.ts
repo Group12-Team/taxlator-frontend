@@ -8,15 +8,15 @@ export type AnyJson = JsonPrimitive | { [key: string]: AnyJson } | AnyJson[];
 /* =========================
    AUTH TYPES
 ========================= */
-export interface SignInPayload {
-	email: string;
-	password: string;
-}
-
 export interface SignUpPayload {
 	email: string;
 	password: string;
 	fullName?: string;
+}
+
+export interface SignInPayload {
+	email: string;
+	password: string;
 }
 
 export interface User {
