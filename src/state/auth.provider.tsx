@@ -1,6 +1,6 @@
 // src/state/auth.provider.tsx
 
-// --------------------------------------
+// ----------------------------------------------
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import {
 	api,
@@ -12,14 +12,13 @@ import {
 import { ENDPOINTS } from "../api/endpoints";
 import { AuthCtx } from "./auth.context";
 import type { AuthContextValue } from "./auth.context";
-import type { User } from "../api/types";
+import type { User, SignUpPayload, SignInPayload } from "../api/types";
 
-// ------------------------------ AUTH PROVIDER COMPONENT --------------------------------
+// -------------------------------- AUTH PROVIDER --------------------------------
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
 
-	/* ================= REFRESH USER ================= */
 	const refresh = useCallback(async () => {
 		const token = getToken();
 		if (!token) {
@@ -39,12 +38,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 		}
 	}, []);
 
-	/* ================= AUTO-REFRESH ON APP LOAD ================= */
 	useEffect(() => {
 		refresh();
 	}, [refresh]);
 
-	/* ================= CONTEXT VALUE ================= */
 	const value = useMemo<AuthContextValue>(() => {
 		const authenticated = Boolean(user);
 
@@ -53,35 +50,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			loading,
 			authenticated,
 
-			async signup(payload) {
+			async signup(payload: SignUpPayload) {
 				const { data } = await api.post(ENDPOINTS.signup, payload);
 				return data;
 			},
 
-			async verifyEmail(payload) {
+			async signin(payload: SignInPayload) {
+				const { data } = await api.post(ENDPOINTS.signin, payload);
+				const token = extractToken(data);
+				if (!token) throw new Error("Signin succeeded but no token returned");
+				setToken(token);
+				await refresh();
+				return data;
+			},
+
+			async verifyEmail(payload: { email: string; code: string }) {
 				const { data } = await api.post(ENDPOINTS.verifyEmail, payload);
 				await refresh();
 				return data;
 			},
 
-			async sendVerificationCode(payload) {
+			async sendVerificationCode(payload: { email: string }) {
 				const { data } = await api.post(
 					ENDPOINTS.sendVerificationCode,
 					payload,
 				);
-				return data;
-			},
-
-			async signin(payload) {
-				const { data } = await api.post(ENDPOINTS.signin, payload);
-
-				const token = extractToken(data);
-				if (!token) {
-					throw new Error("Signin succeeded but no token returned");
-				}
-
-				setToken(token);
-				await refresh();
 				return data;
 			},
 

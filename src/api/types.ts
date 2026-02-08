@@ -5,13 +5,13 @@
 export type JsonPrimitive = string | number | boolean | null;
 export type AnyJson = JsonPrimitive | { [key: string]: AnyJson } | AnyJson[];
 
-/* =========================
-   AUTH TYPES
-========================= */
+// ------------------------------ AUTH PAYLOADS & USER TYPES ------------------------------
 export interface SignUpPayload {
+	firstName: string;
+	lastName: string;
 	email: string;
 	password: string;
-	fullName?: string;
+	confirmPassword: string;
 }
 
 export interface SignInPayload {
@@ -27,9 +27,7 @@ export interface User {
 	updatedAt: string;
 }
 
-/* =========================
-   PAYE / PIT
-========================= */
+// -------------------------------- PAYE / PIT CALCULATION TYPES --------------------------------
 export interface PayeDeduction {
 	key: string;
 	label: string;
@@ -60,9 +58,7 @@ export interface PayeResult {
 	computation: TaxBand[];
 }
 
-/* =========================
-   FREELANCER
-========================= */
+// ---------------------------------------- FREELANCER CALCULATION TYPES --------------------------------
 export interface FreelancerResult {
 	taxType: "FREELANCER";
 	grossIncome: number;
@@ -74,9 +70,7 @@ export interface FreelancerResult {
 	computation: TaxBand[];
 }
 
-/* =========================
-   COMPANY (CIT)
-========================= */
+// ----------------------------------- CIT CALCULATION TYPES --------------------------------
 export interface CitResult {
 	taxType: "CIT";
 	companySize: CompanySize;
@@ -94,9 +88,7 @@ export interface CitResult {
 	computation: TaxBand[];
 }
 
-/* =========================
-   VAT
-========================= */
+// ----------------------------- VAT CALCULATION TYPES -----------------------------
 export interface VatResult {
 	transactionAmount: number;
 	vatAmount: number;
@@ -105,9 +97,7 @@ export interface VatResult {
 	transactionType: VatTransactionType;
 }
 
-/* =========================
-   API payloads
-========================= */
+// ------------------------------------ API PAYLOADS ------------------------------------
 export interface PayePitCalculatePayload {
 	taxType: "PAYE/PIT";
 	grossIncome: number;
@@ -140,14 +130,10 @@ export interface VatCalculatePayload {
 	transactionType: VatTransactionType;
 }
 
-/* =========================
-   COMPANY SIZE
-========================= */
+// -------------------------------- COMPANY SIZE --------------------------------
 export type CompanySize = "Small" | "Medium" | "Multinational";
 
-/* =========================
-   VAT
-========================= */
+// -------------------------------- VAT --------------------------------
 export type VatCalculationType = "add" | "remove";
 export type VatTransactionType =
 	| "Domestic sale/Purchase"
@@ -155,9 +141,7 @@ export type VatTransactionType =
 	| "Digital Services"
 	| "Exempt";
 
-/* =========================
-   API envelope
-========================= */
+// -------------------------------- API ENVELOPE --------------------------------
 export type ApiSuccess<T> = {
 	success: true;
 	data: T;

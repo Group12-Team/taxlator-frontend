@@ -1,8 +1,6 @@
-// src/pages/SignUp.tsx
-// ----------------------------------------------
-// Sign Up Page
-// ----------------------------------------------
+// src/pages/otherPages/SignUp.tsx
 
+// ----------------------------------------------
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";
@@ -12,7 +10,7 @@ import inputStyles from "../../components/ui/inputs/InputStyles";
 import FormButton from "../../components/ui/buttons/FormButton";
 import PasswordHelper from "../../components/ui/inputs/PasswordHelper";
 
-// ----------------------------------------------
+// -------------------------------- SIGN UP PAGE --------------------------------
 export default function SignUp() {
 	const { signup } = useAuth();
 	const navigate = useNavigate();
@@ -34,15 +32,9 @@ export default function SignUp() {
 	const isFormValid =
 		hasNames && email.trim().length > 0 && hasValidPassword && agree && !busy;
 
-	// ---------------------------------------------- FORM SUBMIT
 	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		setError("");
-
-		if (password !== confirmPassword) {
-			setError("Passwords do not match");
-			return;
-		}
 
 		if (!agree) {
 			setError("You must agree to the Terms and Privacy Policy");
@@ -52,8 +44,7 @@ export default function SignUp() {
 		setBusy(true);
 
 		try {
-			// ✅ call backend via useAuth
-			await signup({ firstName, lastName, email, password });
+			await signup({ firstName, lastName, email, password, confirmPassword });
 			navigate("/verify-email", { state: { email } });
 		} catch (err: unknown) {
 			if (err instanceof AxiosError) {
@@ -81,7 +72,6 @@ export default function SignUp() {
 					</div>
 				</div>
 
-				{/* SIGN-UP FORM */}
 				<form className="p-5 overflow-x-hidden" onSubmit={onSubmit}>
 					{error && (
 						<div className="mb-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">
@@ -89,7 +79,6 @@ export default function SignUp() {
 						</div>
 					)}
 
-					{/* FIRST NAME */}
 					<label className="text-xs font-semibold text-slate-700 mb-1 block">
 						First Name
 					</label>
@@ -101,7 +90,6 @@ export default function SignUp() {
 						required
 					/>
 
-					{/* LAST NAME */}
 					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
 						Last Name
 					</label>
@@ -113,7 +101,6 @@ export default function SignUp() {
 						required
 					/>
 
-					{/* EMAIL */}
 					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
 						Email Address
 					</label>
@@ -126,7 +113,6 @@ export default function SignUp() {
 						required
 					/>
 
-					{/* PASSWORD */}
 					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
 						Password
 					</label>
@@ -151,7 +137,6 @@ export default function SignUp() {
 					</div>
 					<PasswordHelper visible={passwordFocused} />
 
-					{/* CONFIRM PASSWORD */}
 					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
 						Confirm Password
 					</label>
@@ -173,7 +158,6 @@ export default function SignUp() {
 						</button>
 					</div>
 
-					{/* TERMS */}
 					<div className="mt-2 flex items-start gap-2 text-xs">
 						<input
 							type="checkbox"
@@ -199,7 +183,6 @@ export default function SignUp() {
 						</p>
 					</div>
 
-					{/* SIGN-UP BUTTON */}
 					<MotionButton className="mt-7 w-full">
 						<FormButton enabled={isFormValid} loading={busy}>
 							{busy ? "Creating..." : "Sign Up"}
