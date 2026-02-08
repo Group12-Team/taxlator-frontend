@@ -5,7 +5,6 @@
 // ----------------------------------------------
 
 import { Route } from "react-router-dom";
-
 import PayePit from "../pages/tax/PayePit";
 import Vat from "../pages/tax/Vat";
 import Freelancer from "../pages/tax/FreeLancer";

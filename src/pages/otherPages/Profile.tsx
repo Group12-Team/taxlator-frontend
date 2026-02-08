@@ -1,8 +1,8 @@
 // src/pages/Profile.tsx
 import { useEffect, useState } from "react";
-import { api } from "../api/client";
+import { api } from "../../api/client";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../state/auth.context";
+import { useAuth } from "../../state/useAuth";
 
 /* ================= TYPES ================= */
 export type UserProfile = {

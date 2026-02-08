@@ -6,14 +6,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";
-import axios from "axios";
+import { AxiosError } from "axios";
 import MotionButton from "../../components/ui/buttons/MotionButton";
 import inputStyles from "../../components/ui/inputs/InputStyles";
 import FormButton from "../../components/ui/buttons/FormButton";
 import PasswordHelper from "../../components/ui/inputs/PasswordHelper";
 
 // ----------------------------------------------
-
 export default function SignUp() {
 	const { signup } = useAuth();
 	const navigate = useNavigate();
@@ -25,23 +24,17 @@ export default function SignUp() {
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
 	const [agree, setAgree] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
-
-	// ---------------------------- PASSWORD HINT/FOCUS STATE ----------------------------
 	const [passwordFocused, setPasswordFocused] = useState(false);
 
-	// --------------------------- FORM VALIDATION FOR SIGN UP BUTTON ---------------------------
 	const hasNames = firstName.trim().length > 0 && lastName.trim().length > 0;
-
 	const hasValidPassword = password.length >= 8 && password === confirmPassword;
-
 	const isFormValid =
 		hasNames && email.trim().length > 0 && hasValidPassword && agree && !busy;
 
-	// ----------------------------------------------------------------------
+	// ---------------------------------------------- FORM SUBMIT
 	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		setError("");
@@ -59,11 +52,14 @@ export default function SignUp() {
 		setBusy(true);
 
 		try {
+			// ✅ call backend via useAuth
 			await signup({ firstName, lastName, email, password });
 			navigate("/verify-email", { state: { email } });
 		} catch (err: unknown) {
-			if (axios.isAxiosError(err)) {
+			if (err instanceof AxiosError) {
 				setError(err.response?.data?.message || "Signup failed");
+			} else if (err instanceof Error) {
+				setError(err.message);
 			} else {
 				setError("Signup failed");
 			}
@@ -134,7 +130,6 @@ export default function SignUp() {
 					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
 						Password
 					</label>
-
 					<div className="relative mt-1">
 						<input
 							type={showPassword ? "text" : "password"}
@@ -178,7 +173,7 @@ export default function SignUp() {
 						</button>
 					</div>
 
-					{/* TERMS AND CONDITIONS / PRIVACY POLICY */}
+					{/* TERMS */}
 					<div className="mt-2 flex items-start gap-2 text-xs">
 						<input
 							type="checkbox"

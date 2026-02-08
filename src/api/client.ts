@@ -1,8 +1,10 @@
 // taxlator/src/api/client.ts
+
+// -----------------------------------------------
 import axios from "axios";
 import type { AnyJson } from "./types";
 
-// Use environment variable for API base URL
+// -------------------------------- AXIOS CLIENT SETUP --------------------------------
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 const TOKEN_KEY = "taxlator_token";

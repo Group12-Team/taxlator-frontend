@@ -1,20 +1,22 @@
 // src/pages/SignIn.tsx
 // ----------------------------------------------
-
 // Sign In Page
 // ----------------------------------------------
 
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";
-import axios from "axios";
+import { api } from "../../api/client";
+import { ENDPOINTS } from "../../api/endpoints";
 import MotionButton from "../../components/ui/buttons/MotionButton";
 import inputStyles from "../../components/ui/inputs/InputStyles";
 import FormButton from "../../components/ui/buttons/FormButton";
+import { AxiosError } from "axios"; 
 
-//  types
+
 // ----------------------------------------------
-
+// types
+// ----------------------------------------------
 type SigninResponse = {
 	success?: boolean;
 	message?: string;
@@ -22,8 +24,6 @@ type SigninResponse = {
 };
 
 // ----------------------------------------------
-// ----------------------------------------------
-
 export default function SignIn() {
 	const { signin } = useAuth();
 	const navigate = useNavigate();
@@ -45,11 +45,19 @@ export default function SignIn() {
 		setBusy(true);
 
 		try {
-			// ✅ capture response so we can store token
-			const data = (await signin({ email, password })) as SigninResponse;
+			// ✅ call backend directly
+			const { data } = await api.post<SigninResponse>(ENDPOINTS.signin, {
+				email,
+				password,
+			});
+
+			if (!data.success) {
+				setError(data.message || "Signin failed");
+				return;
+			}
 
 			// ✅ store JWT based on "Remember me"
-			if (data?.token) {
+			if (data.token) {
 				if (rememberMe) {
 					localStorage.setItem("token", data.token);
 				} else {
@@ -57,9 +65,14 @@ export default function SignIn() {
 				}
 			}
 
+			// ✅ update global auth state
+			signin?.(data);
+
+			// ✅ redirect to calculation page
 			navigate("/calculate");
 		} catch (err: unknown) {
-			if (axios.isAxiosError(err)) {
+			// ✅ narrow error type for TS
+			if (err instanceof AxiosError) {
 				setError(err.response?.data?.message ?? "Signin failed");
 			} else if (err instanceof Error) {
 				setError(err.message);
