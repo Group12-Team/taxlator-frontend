@@ -1,29 +1,27 @@
 // src/pages/tax/PayePitResultPanel.tsx
-// -----------------------------------------------------------
 
 // -----------------------------------------------------------
 import { useState } from "react";
-import type { PayeResult } from "../../api/types";
-// import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { formatCurrency } from "../../utils/formatCurrency";
+import GuestCTA from "../../components/ui/resultPanel/GuestCTA";
+import type { PayePitResult, TaxBand } from "../../api/tax.types";
 
-// -----------------------------------------------------------
-// Types
-// -----------------------------------------------------------
 type Props = {
-	result: PayeResult;
-	grossIncome: number;
+	result: PayePitResult;
+	grossAnnualIncome: number;
 	isAuthenticated: boolean;
+	prefillEmail?: string;
 };
 
-// -----------------------------------------------------------
-// -----------------------------------------------------------
-
+// ------------------------------- PAYE/PIT RESULT PANEL -------------------------------
 export default function PayePitResultPanel({
 	result,
-	grossIncome,
+	grossAnnualIncome,
 	isAuthenticated,
+	prefillEmail = "",
 }: Props) {
+	const navigate = useNavigate();
 	const [open, setOpen] = useState(false);
 
 	return (
@@ -39,11 +37,22 @@ export default function PayePitResultPanel({
 
 			{/* SUMMARY */}
 			<div className="p-6 grid grid-cols-2 gap-4">
-				<StatCard label="Gross Income" value={grossIncome} />
-				<StatCard label="Net Income" value={result.netIncome} />
+				<div className="rounded-2xl bg-slate-50 border py-4 px-3 text-center">
+					<div className="text-xs text-slate-600">Gross Annual Income</div>
+					<div className="mt-1 font-semibold">
+						{formatCurrency(grossAnnualIncome)}
+					</div>
+				</div>
+
+				<div className="rounded-2xl bg-slate-50 border py-4 px-3 text-center">
+					<div className="text-xs text-slate-600">Net Income</div>
+					<div className="mt-1 font-semibold">
+						{formatCurrency(result.netIncome)}
+					</div>
+				</div>
 			</div>
 
-			{/* TOGGLE */}
+			{/* TOGGLE BUTTON */}
 			<div className="px-6">
 				<button
 					onClick={() => setOpen((v) => !v)}
@@ -54,37 +63,33 @@ export default function PayePitResultPanel({
 				</button>
 			</div>
 
-			{/* BREAKDOWN */}
+			{/* TAX BREAKDOWN */}
 			{open && (
 				<div className="p-6">
-					<div className="bg-slate-50 border rounded-xl p-5 space-y-6">
+					<div className="bg-slate-50 border rounded-xl p-5 space-y-4">
 						<h3 className="font-semibold text-brand-700">
 							Tax Calculation Breakdown
 						</h3>
 
-						{/* DEDUCTIONS */}
+						{/* DEDUCTIONS & TAXABLE INCOME */}
 						<div className="space-y-1 text-sm">
-							{result.deductions.map((d) => (
-								<Row key={d.key} label={d.label} value={-d.amount} />
-							))}
-
-							<hr className="my-2" />
-
-							<Row
-								label="Total Deductions"
-								value={result.totalDeductions}
-								bold
-							/>
-							<Row label="Annual Taxable Income" value={result.taxableIncome} />
+							<div className="flex justify-between">
+								<span>Total Deductions</span>
+								<span>{formatCurrency(result.totalDeductions)}</span>
+							</div>
+							<div className="flex justify-between font-semibold">
+								<span>Annual Taxable Income</span>
+								<span>{formatCurrency(result.taxableIncome)}</span>
+							</div>
 						</div>
 
 						{/* TAX BANDS */}
 						<div>
-							<p className="text-sm font-semibold mb-2">
+							<p className="text-sm font-semibold mt-3 mb-1">
 								Progressive Tax Bands (Annual)
 							</p>
 							<div className="space-y-1 text-sm text-slate-600">
-								{result.computation.map((b, i) => (
+								{result.computation.map((b: TaxBand, i: number) => (
 									<div key={i} className="flex justify-between">
 										<span>
 											{Math.round(b.rate * 100)}% of ₦
@@ -100,58 +105,30 @@ export default function PayePitResultPanel({
 
 						{/* TOTALS */}
 						<div className="space-y-1 text-sm">
-							<Row label="Total Annual Tax" value={result.totalTax} bold />
-							<Row label="Monthly Tax" value={result.totalTax / 12} />
+							<div className="flex justify-between font-semibold">
+								<span>Total Annual Tax</span>
+								<span>{formatCurrency(result.totalTax)}</span>
+							</div>
+							<div className="flex justify-between">
+								<span>Monthly Tax</span>
+								<span>{formatCurrency(result.totalTax / 12)}</span>
+							</div>
 						</div>
 					</div>
 				</div>
 			)}
 
-			{/* CTA */}
-			<div className="p-6">
-				{isAuthenticated ? (
-					<p className="text-xs text-center text-slate-500">
-						This calculation has been saved to your history
-					</p>
-				) : (
-					<button className="w-full bg-brand-700 text-white rounded-xl py-3 font-semibold hover:bg-brand-800">
-						Sign in to save this calculation
-					</button>
-				)}
+			{/* ACTION */}
+			<div className="p-3">
+				<button
+					onClick={() => navigate("/calculate")}
+					className="w-full rounded bg-brand-800 text-white py-2.5 text-sm font-semibold"
+				>
+					Calculate Another Tax
+				</button>
+
+				{!isAuthenticated && <GuestCTA prefillEmail={prefillEmail} />}
 			</div>
-		</div>
-	);
-}
-
-/* =================== */
-/* SMALL COMPONENTS    */
-/* =================== */
-
-function StatCard({ label, value }: { label: string; value: number }) {
-	return (
-		<div className="bg-slate-50 rounded-xl p-4">
-			<p className="text-xs text-slate-500">{label}</p>
-			<p className="font-semibold mt-1">{formatCurrency(value)}</p>
-		</div>
-	);
-}
-
-function Row({
-	label,
-	value,
-	bold,
-}: {
-	label: string;
-	value: number;
-	bold?: boolean;
-}) {
-	return (
-		<div className="flex justify-between">
-			<span className={bold ? "font-semibold" : ""}>{label}</span>
-			<span className={bold ? "font-semibold" : ""}>
-				{value < 0 ? "-" : ""}
-				{formatCurrency(Math.abs(value))}
-			</span>
 		</div>
 	);
 }

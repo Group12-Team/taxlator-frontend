@@ -2,7 +2,7 @@
 
 // ----------------------------------------------
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";
 import { AxiosError } from "axios";
 import MotionButton from "../../components/ui/buttons/MotionButton";
@@ -17,7 +17,6 @@ export default function SignUp() {
 
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
-	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
@@ -26,6 +25,9 @@ export default function SignUp() {
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 	const [passwordFocused, setPasswordFocused] = useState(false);
+	const location = useLocation();
+	const initialEmail = (location.state as { email?: string })?.email ?? "";
+	const [email, setEmail] = useState(initialEmail);
 
 	const hasNames = firstName.trim().length > 0 && lastName.trim().length > 0;
 	const hasValidPassword = password.length >= 8 && password === confirmPassword;

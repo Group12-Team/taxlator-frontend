@@ -1,18 +1,17 @@
-// src/pages/SignIn.tsx
+// src/pages/otherPages/SignIn.tsx
 // ----------------------------------------------
 // Sign In Page
 // ----------------------------------------------
 
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";
 import { api } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
 import MotionButton from "../../components/ui/buttons/MotionButton";
 import inputStyles from "../../components/ui/inputs/InputStyles";
 import FormButton from "../../components/ui/buttons/FormButton";
-import { AxiosError } from "axios"; 
-
+import { AxiosError } from "axios";
 
 // ----------------------------------------------
 // types
@@ -25,14 +24,17 @@ type SigninResponse = {
 
 // ----------------------------------------------
 export default function SignIn() {
-	const { signin } = useAuth();
+	const { refresh } = useAuth();
 	const navigate = useNavigate();
+	const location = useLocation();
 
-	const [email, setEmail] = useState("");
+	// Pre-fill email from GuestCTA
+	const initialEmail = (location.state as { email?: string })?.email ?? "";
+
+	const [email, setEmail] = useState(initialEmail);
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [rememberMe, setRememberMe] = useState(false);
-
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 
@@ -45,7 +47,7 @@ export default function SignIn() {
 		setBusy(true);
 
 		try {
-			// ✅ call backend directly
+			// Call backend directly
 			const { data } = await api.post<SigninResponse>(ENDPOINTS.signin, {
 				email,
 				password,
@@ -56,22 +58,24 @@ export default function SignIn() {
 				return;
 			}
 
-			// ✅ store JWT based on "Remember me"
-			if (data.token) {
-				if (rememberMe) {
-					localStorage.setItem("token", data.token);
-				} else {
-					sessionStorage.setItem("token", data.token);
-				}
+			if (!data.token) {
+				setError("Signin succeeded but no token returned");
+				return;
 			}
 
-			// ✅ update global auth state
-			signin?.(data);
+			// Store JWT based on "Remember me"
+			if (rememberMe) {
+				localStorage.setItem("token", data.token);
+			} else {
+				sessionStorage.setItem("token", data.token);
+			}
 
-			// ✅ redirect to calculation page
+			// Refresh user state in AuthProvider
+			await refresh();
+
+			// Redirect to calculation page
 			navigate("/calculate");
 		} catch (err: unknown) {
-			// ✅ narrow error type for TS
 			if (err instanceof AxiosError) {
 				setError(err.response?.data?.message ?? "Signin failed");
 			} else if (err instanceof Error) {
@@ -113,6 +117,7 @@ export default function SignIn() {
 						onChange={(e) => setEmail(e.target.value)}
 						placeholder="Enter your email"
 						required
+						type="email"
 					/>
 
 					{/* PASSWORD INPUT */}
@@ -185,5 +190,3 @@ export default function SignIn() {
 		</div>
 	);
 }
-// ----------------------------------------------
-// ----------------------------------------------

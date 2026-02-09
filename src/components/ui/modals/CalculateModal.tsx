@@ -88,7 +88,7 @@ export default function CalculateModal({
 							desc="Personal Income Tax calculator"
 							image={calculateModalImages.PayePit}
 							hoverImage={calculateModalImages.PayePitHover}
-							onClick={() => onPick("/tax/paye-pit")}
+							onClick={() => onPick("/tax/payePit")}
 						/>
 
 						<OptionCard
@@ -113,7 +113,7 @@ export default function CalculateModal({
 							desc="Corporate tax calculator"
 							image={calculateModalImages.Company}
 							hoverImage={calculateModalImages.CompanyHover}
-							onClick={() => onPick("/tax/company")}
+							onClick={() => onPick("/tax/cit")}
 						/>
 					</div>
 

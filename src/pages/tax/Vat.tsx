@@ -1,10 +1,11 @@
 // src/pages/tax/Vat.tsx
+
 // -----------------------------------------------------------
 import { useMemo, useState } from "react";
 import TaxPageLayout from "./TaxPageLayout";
 import { api } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
-import { addHistory } from "../../state/history";
+import { useHistory } from "../../state/history";
 import { useAuth } from "../../state/useAuth";
 import VatResultPanel from "./VatResultPanel";
 import { Check } from "lucide-react";
@@ -35,7 +36,7 @@ import type { HistoryResult } from "../../types/history.type";
 
 export default function Vat() {
 	const { authenticated } = useAuth();
-
+	const { addHistory } = useHistory();
 	// form state
 	// ---------------------------
 	const [transactionAmount, setTransactionAmount] = useState("");

@@ -4,11 +4,10 @@
 // imports
 // -----------------------------------------------------------
 import { useMemo, useState } from "react";
-import TaxPageLayout from "./TaxPageLayout";
+import TaxPageLayout from "../../pages/tax/TaxPageLayout";
 import { api } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
-import { addHistory } from "../../state/history";
-import type { PayePitCalculatePayload, PayeResult } from "../../api/types";
+import { useHistory } from "../../state/history";
 import { useAuth } from "../../state/useAuth";
 import PayePitResultPanel from "./PayePitResultPanel";
 import CalculateButton from "../../components/ui/buttons/CalculateButton";
@@ -18,11 +17,16 @@ import {
 	formatNumber,
 	onlyNumbers,
 } from "../../utils/numberInput";
-import type { ApiResponse } from "../../api/types";
+import type {
+	PayePitCalculatePayload,
+	PayePitResult,
+} from "../../api/tax.types";
+import type { ApiResponse } from "../../api/api.types";
 
 // -----------------------------------------------------------
 export default function PayePit() {
 	const { authenticated } = useAuth();
+	const { addHistory } = useHistory();
 
 	// form state
 	// ---------------------------
@@ -36,17 +40,17 @@ export default function PayePit() {
 	// ---------------------------
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
-	const [result, setResult] = useState<PayeResult | null>(null);
+	const [result, setResult] = useState<PayePitResult | null>(null);
 
 	// derived numeric values
 	// ---------------------------
-	const grossIncomeNumber = useMemo(
+	const grossAnnualIncomeNumber = useMemo(
 		() => parseNumber(grossAnnualIncome),
 		[grossAnnualIncome],
 	);
 
 	const rentNumber = useMemo(() => parseNumber(annualRent), [annualRent]);
-	
+
 	const otherDeductionsNumber = useMemo(
 		() => parseNumber(otherDeductions),
 		[otherDeductions],
@@ -54,12 +58,13 @@ export default function PayePit() {
 
 	// form validation, proceed button enabled
 	// ---------------------------
-	const isCalculationValid = grossIncomeNumber > 0 && !busy;
+	const isCalculationValid = grossAnnualIncomeNumber > 0 && !busy;
 
+	// --------------------------- CALCULATE ---------------------------
 	async function calculate() {
 		setError("");
 
-		if (grossIncomeNumber <= 0) {
+		if (grossAnnualIncomeNumber <= 0) {
 			setError("Gross annual income must be greater than 0");
 			return;
 		}
@@ -68,34 +73,29 @@ export default function PayePit() {
 
 		try {
 			const payload: PayePitCalculatePayload = {
-				taxType: "PAYE/PIT" as const,
-				grossIncome: grossIncomeNumber,
-				pensionApplies: true,
-				includeNhf,
-				includeNhis,
-				annualRent: rentNumber,
+				taxType: "PAYE/PIT",
+				grossAnnualIncome: grossAnnualIncomeNumber,
+				payePitPensionContribution: true,
+				nationalHousingFund: includeNhf,
+				nationalHealthInsuranceScheme: includeNhis,
+				rentRelief: rentNumber,
 				otherDeductions: otherDeductionsNumber,
 			};
 
-			const { data } = await api.post<ApiResponse<PayeResult>>(
-				ENDPOINTS.taxCalculate,
+			const { data } = await api.post<ApiResponse<PayePitResult>>(
+				ENDPOINTS.taxCalculate("payePit"),
 				payload,
 			);
 
-			// Typed success guard
-			// ---------------------------
 			if (!data.success) {
 				setError(data.message || data.error || "Calculation failed");
 				return;
 			}
 
-			// Fully typed result
-			// ---------------------------
 			setResult(data.data);
 
-			// Log to history
-			// ---------------------------
-			addHistory({
+			// ✅ log history only if authenticated
+			await addHistory({
 				type: "PAYE/PIT",
 				input: payload,
 				result: data.data,
@@ -124,7 +124,7 @@ export default function PayePit() {
 				result ? (
 					<PayePitResultPanel
 						result={result}
-						grossIncome={grossIncomeNumber}
+						grossAnnualIncome={grossAnnualIncomeNumber}
 						isAuthenticated={authenticated}
 					/>
 				) : null

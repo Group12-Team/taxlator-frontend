@@ -2,7 +2,7 @@
 
 // -------------------------------
 import axios from "axios";
-import type { AnyJson } from "./types";
+import type { AnyJson } from "./api.types";
 
 // -------------------------------- AXIOS CLIENT SETUP --------------------------------
 const API_BASE =

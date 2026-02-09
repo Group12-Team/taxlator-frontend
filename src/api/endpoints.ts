@@ -1,26 +1,37 @@
 // src/api/endpoints.ts
 
-// ================================
-// Centralized frontend endpoints for Taxlator
-// ================================
-
+// ==================== CENTRALIZED FRONTEND ENDPOINTS ===================
 export const ENDPOINTS = {
 	// ------------------------------ AUTH ------------------------------
-	signup: "/api/auth/signup", // create new user
-	sendVerificationCode: "/api/auth/send-code", // send email code
-	verifyEmail: "/api/auth/verify-email", // verify email with code
-	signin: "/api/auth/signin", // login
-	me: "/api/auth/me", // current user (protected)
-	changePassword: "/api/auth/change-password", // update password (protected)
-	forgotPassword: "/api/auth/forgot-password", // request password reset
-	resetPassword: "/api/auth/reset-password", // reset password with token
-	signout: "/api/auth/signout", // logout
+	signup: "/api/auth/signup",
+	sendVerificationCode: "/api/auth/send-code",
+	verifyEmail: "/api/auth/verify-email",
+	signin: "/api/auth/signin",
+	checkEmail: "/api/auth/check-email",
+	me: "/api/auth/me",
+	changePassword: "/api/auth/change-password",
+	forgotPassword: "/api/auth/forgot-password",
+	resetPassword: "/api/auth/reset-password",
+	signout: "/api/auth/signout",
 
-	// ------------------------------ TAX / VAT CALCULATIONS ------------------------------
-	taxCalculatePublic: "/api/tax/taxType/calculate", // public calculation (no save)
-	taxCalculatePrivate: "/api/tax/taxType/calculate/save", // authenticated save
-	taxCalculate: "/api/tax/taxType/calculate", // shortcut to public TAX calculation
-	vatCalculatePublic: "/api/vat/calculate", // public VAT calculation
-	vatCalculatePrivate: "/api/vat/calculate/save", // authenticated VAT save
-	vatCalculate: "/api/vat/calculate", // shortcut to public VAT calculation
+	// ------------------------------ TAX ENDPOINTS ------------------------------
+	// ---------------------- PUBLIC ----------------------
+	taxCalculatePublic: (taxType: string) => `/api/tax/${taxType}/calculate`,
+
+	// ---------------------- PUBLIC SHORTCUT ----------------------
+	taxCalculate: (taxType: string) => `/api/tax/${taxType}/calculate`,
+
+	// ---------------------- PRIVATE ----------------------
+	taxCalculatePrivate: (taxType: string) =>
+		`/api/tax/${taxType}/calculate/save`,
+
+	// ------------------------------ VAT ENDPOINTS ------------------------------
+	// ---------------------- PUBLIC ----------------------
+	vatCalculatePublic: "/api/vat/calculate",
+
+	// ---------------------- PUBLIC SHORTCUT ----------------------
+	vatCalculate: "/api/vat/calculate",
+
+	// ---------------------- PRIVATE ----------------------
+	vatCalculatePrivate: "/api/vat/calculate/save",
 };

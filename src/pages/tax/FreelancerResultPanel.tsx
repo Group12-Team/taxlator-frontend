@@ -1,42 +1,53 @@
 // src/pages/tax/FreelancerResultPanel.tsx
-// -----------------------------------------------------------
 
-// imports
 // -----------------------------------------------------------
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { formatCurrency } from "../../utils/formatCurrency";
-import type { FreelancerResult } from "../../api/types";
-
-// -----------------------------------------------------------
-// Types
-// -----------------------------------------------------------
+import GuestCTA from "../../components/ui/resultPanel/GuestCTA";
+import type { FreelancerResult } from "../../api/tax.types";
+import type { ApiResponse } from "../../api/api.types";
 
 type Props = {
-	result: FreelancerResult;
-	grossIncome: number;
+	result: ApiResponse<FreelancerResult>;
+	grossAnnualIncome: number;
 	isAuthenticated: boolean;
 	prefillEmail?: string;
 };
 
-// -----------------------------------------------------------
-// -----------------------------------------------------------
-
+// ------------------------------- FREELANCER RESULT PANEL -------------------------------
 export default function FreelancerResultPanel({
 	result,
-	grossIncome,
+	grossAnnualIncome,
 	isAuthenticated,
 	prefillEmail = "",
 }: Props) {
 	const navigate = useNavigate();
 	const [open, setOpen] = useState(false);
-	const [email, setEmail] = useState(prefillEmail);
 
-	const taxDue = result.totalTax;
-	const annualGrossIncome = result.grossIncome ?? grossIncome;
-	const netIncome = result.netIncome;
-	const taxableIncome = result.taxableIncome;
-	const breakdown = result.computation;
+	// ---------- handle API success / failure ----------
+	if (!result.success) {
+		return (
+			<div className="bg-white rounded-2xl border shadow-soft p-3 text-center text-red-600">
+				<p className="font-semibold">Failed to load freelancer tax result</p>
+				<p>{result.message ?? result.error ?? "Unknown error"}</p>
+				<button
+					onClick={() => navigate("/calculate")}
+					className="mt-3 rounded bg-brand-800 text-white py-2 px-4 text-sm font-semibold"
+				>
+					Try Again
+				</button>
+			</div>
+		);
+	}
+
+	const data = result.data;
+
+	const taxDue = data.totalTax;
+	const annualGrossIncome = data.grossAnnualIncome ?? grossAnnualIncome;
+	const netIncome = data.netIncome;
+	const taxableIncome = data.taxableIncome;
+	const breakdown = data.computation;
 
 	return (
 		<div className="bg-white rounded-2xl border shadow-soft overflow-hidden">
@@ -115,34 +126,8 @@ export default function FreelancerResultPanel({
 				</button>
 
 				{/* GUEST CTA */}
-				{!isAuthenticated && (
-					<div className="mt-4 rounded-xl border bg-slate-100 p-3">
-						<div className="font-semibold text-sm">Save Your Calculations</div>
-						<div className="text-xs text-slate-600 mt-1">
-							Sign up to save and track your tax history.
-						</div>
-
-						<div className="mt-3 flex gap-2">
-							<input
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-								className="flex-1 rounded border px-2 py-1.5 text-sm"
-								placeholder="Email"
-								type="email"
-							/>
-							<Link
-								to="/signup"
-								state={{ email }}
-								className="px-4 rounded bg-brand-800 text-white text-sm font-semibold grid place-items-center"
-							>
-								Sign Up
-							</Link>
-						</div>
-					</div>
-				)}
+				{!isAuthenticated && <GuestCTA prefillEmail={prefillEmail} />}
 			</div>
 		</div>
 	);
 }
-// -----------------------------------------------------------
-// -----------------------------------------------------------

@@ -3,7 +3,7 @@
 
 // -----------------------------------------------------------
 import { useState } from "react";
-import type { CompanySize as ApiCompanySize } from "../../../api/types";
+import type { CompanySize as ApiCompanySize } from "../../../api/tax.types";
 
 // --------------------------------------------
 // Types
@@ -22,8 +22,8 @@ const COMPANY_SIZE_OPTIONS: {
 		label: "Small Company (0%)",
 	},
 	{
-		value: "Medium",
-		label: "Medium Companies (30%)",
+		value: "Other",
+		label: "Other Companies (30%)",
 	},
 	{
 		value: "Multinational",

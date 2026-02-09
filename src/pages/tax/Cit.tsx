@@ -1,79 +1,67 @@
-// src/pages/tax/Company.tsx
-// -----------------------------------------------------------
+// src/pages/tax/Cit.tsx
 
+// -----------------------------------------------------------
 import { useMemo, useState, useEffect } from "react";
 import TaxPageLayout from "./TaxPageLayout";
 import { api } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
-import { addHistory } from "../../state/history";
-import type { CitCalculatePayload, CitResult } from "../../api/types";
+import { useHistory } from "../../state/history";
 import { useAuth } from "../../state/useAuth";
-import CompanyResultPanel from "./CompanyResultPanel";
-
-// Helpers Imports
-// -----------------------------------------------------------
+import type { CitCalculatePayload, CitResult } from "../../api/tax.types";
+import CitResultPanel from "./CitResultPanel";
+import CurrencyInput from "../../components/ui/inputs/CurrencyInput";
+import CalculateButton from "../../components/ui/buttons/CalculateButton";
+import CompanySizeSelect from "../../components/ui/inputs/CompanySizeSelect";
 import {
 	parseNumber,
 	formatNumber,
 	onlyNumbers,
 } from "../../utils/numberInput";
-import type { ApiResponse } from "../../api/types";
-import CalculateButton from "../../components/ui/buttons/CalculateButton";
-import CurrencyInput from "../../components/ui/inputs/CurrencyInput";
-import CompanySizeSelect, {
-	type CompanySize,
-} from "../../components/ui/inputs/CompanySizeSelect";
+import type { ApiResponse } from "../../api/api.types";
 
-// -----------------------------------------------------------
-export default function Company() {
+// ---------------------------------------- CIT CALCULATOR PAGE --------------------------------
+export default function CIT() {
 	const { authenticated } = useAuth();
+	const { addHistory } = useHistory();
 
-	// form state
-	// ---------------------------
 	const [annualTurnover, setAnnualTurnover] = useState("");
 	const [fixedAssets, setFixedAssets] = useState("");
 	const [taxableProfit, setTaxableProfit] = useState("");
-	const [companySize, setCompanySize] = useState<CompanySize | "">("");
+	const [companySize, setCompanySize] = useState<
+		"" | "Small" | "Other" | "Multinational"
+	>("");
 	const [accountingProfit, setAccountingProfit] = useState("");
 
-	// request state triad
-	// ---------------------------
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 	const [result, setResult] = useState<CitResult | null>(null);
 
-	// derived numeric values
-	// ---------------------------
 	const annualTurnoverNumber = useMemo(
 		() => parseNumber(annualTurnover),
 		[annualTurnover],
 	);
-
 	const fixedAssetsNumber = useMemo(
 		() => parseNumber(fixedAssets),
 		[fixedAssets],
 	);
-
 	const taxableProfitNumber = useMemo(
 		() => parseNumber(taxableProfit),
 		[taxableProfit],
 	);
-
 	const accountingProfitNumber = useMemo(
 		() => parseNumber(accountingProfit),
 		[accountingProfit],
 	);
 
-	// form validation, proceed button enabled
-	// ---------------------------
-	const isCalculationValid = annualTurnoverNumber > 0 && !busy;
+	const isCalculationValid =
+		annualTurnoverNumber > 0 &&
+		fixedAssetsNumber >= 0 &&
+		taxableProfitNumber > 0 &&
+		(companySize !== "Multinational" || accountingProfitNumber > 0) &&
+		!busy;
 
-	// Clear accounting profit if not multinational
-	// ---------------------------
 	useEffect(() => {
-		if (companySize !== "Multinational") {
-			setAccountingProfit("");
-		}
+		if (companySize !== "Multinational") setAccountingProfit("");
 	}, [companySize]);
 
 	async function calculate() {
@@ -89,11 +77,12 @@ export default function Company() {
 				fixedAssets: fixedAssetsNumber,
 				taxableProfit: taxableProfitNumber,
 				companySize,
-				accountingProfit: accountingProfitNumber,
+				accountingProfit:
+					companySize === "Multinational" ? accountingProfitNumber : undefined,
 			};
 
 			const { data } = await api.post<ApiResponse<CitResult>>(
-				ENDPOINTS.taxCalculate,
+				ENDPOINTS.taxCalculate("cit"),
 				payload,
 			);
 
@@ -104,11 +93,13 @@ export default function Company() {
 
 			setResult(data.data);
 
-			addHistory({
-				type: "CIT",
-				input: payload,
-				result: data.data,
-			});
+			if (authenticated) {
+				addHistory({
+					type: "CIT",
+					input: payload,
+					result: data.data,
+				});
+			}
 		} finally {
 			setBusy(false);
 		}
@@ -120,11 +111,7 @@ export default function Company() {
 			subtitle="Calculate company income tax based on Nigerian CIT rules."
 			rightPanel={
 				result ? (
-					<CompanyResultPanel
-						result={result}
-						companySize={companySize || undefined}
-						isAuthenticated={authenticated}
-					/>
+					<CitResultPanel result={result} isAuthenticated={authenticated} />
 				) : undefined
 			}
 		>
@@ -134,7 +121,6 @@ export default function Company() {
 				</div>
 			)}
 
-			{/* Annual Turnover */}
 			<CurrencyInput
 				id="annual-turnover"
 				label="Annual Turnover"
@@ -142,7 +128,6 @@ export default function Company() {
 				onChange={(v) => setAnnualTurnover(onlyNumbers(v))}
 			/>
 
-			{/* Fixed Assets */}
 			<CurrencyInput
 				id="fixed-assets"
 				label="Fixed Assets"
@@ -150,7 +135,6 @@ export default function Company() {
 				onChange={(v) => setFixedAssets(onlyNumbers(v))}
 			/>
 
-			{/* Taxable Profit */}
 			<CurrencyInput
 				id="taxable-profit"
 				label="Taxable Profit"
@@ -158,10 +142,8 @@ export default function Company() {
 				onChange={(v) => setTaxableProfit(onlyNumbers(v))}
 			/>
 
-			{/* Company Size */}
 			<CompanySizeSelect value={companySize} onChange={setCompanySize} />
 
-			{/* Accounting Profit (Multinationals only) */}
 			{companySize === "Multinational" && (
 				<CurrencyInput
 					id="accounting-profit"
@@ -171,7 +153,6 @@ export default function Company() {
 				/>
 			)}
 
-			{/* Proceed/calculate button */}
 			<CalculateButton
 				onClick={calculate}
 				loading={busy}

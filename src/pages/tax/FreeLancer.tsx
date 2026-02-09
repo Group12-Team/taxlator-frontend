@@ -5,63 +5,58 @@ import { useMemo, useState } from "react";
 import TaxPageLayout from "./TaxPageLayout";
 import { api } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
-import { addHistory } from "../../state/history";
+import { useHistory } from "../../state/history";
 import type {
 	FreelancerCalculatePayload,
 	FreelancerResult,
-} from "../../api/types";
+} from "../../api/tax.types";
 import { useAuth } from "../../state/useAuth";
 import FreelancerResultPanel from "./FreelancerResultPanel";
-
-// Helpers
-// -----------------------------------------------------------
 import {
 	parseNumber,
 	formatNumber,
 	onlyNumbers,
 } from "../../utils/numberInput";
-import type { ApiResponse } from "../../api/types";
+import type { ApiResponse } from "../../api/api.types";
 import CalculateButton from "../../components/ui/buttons/CalculateButton";
 import CurrencyInput from "../../components/ui/inputs/CurrencyInput";
 
 // -----------------------------------------------------------
 export default function FreeLancer() {
 	const { authenticated } = useAuth();
+	const { addHistory } = useHistory();
 
-	// form state
-	// ---------------------------
+	// --------------------------- form state ---------------------------
 	const [grossAnnualIncome, setGrossAnnualIncome] = useState("");
 	const [pensionContribution, setPensionContribution] = useState("");
 	const [includeExpenses, setIncludeExpenses] = useState(false);
 	const [totalBusinessExpenses, setTotalBusinessExpenses] = useState("");
 
-	// request state
-	// ---------------------------
+	// --------------------------- request state ---------------------------
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
-	const [result, setResult] = useState<FreelancerResult | null>(null);
+	const [result, setResult] = useState<ApiResponse<FreelancerResult> | null>(
+		null,
+	);
 
-	// derived numbers
-	// ---------------------------
-	const grossIncomeNumber = useMemo(
+	// --------------------------- derived numbers ---------------------------
+	const grossAnnualIncomeNumber = useMemo(
 		() => parseNumber(grossAnnualIncome),
 		[grossAnnualIncome],
 	);
-
 	const pensionContributionNumber = useMemo(
 		() => parseNumber(pensionContribution),
 		[pensionContribution],
 	);
-
 	const totalBusinessExpensesNumber = useMemo(
 		() => parseNumber(totalBusinessExpenses),
 		[totalBusinessExpenses],
 	);
 
-	// form validation, proceed button enabled
-	// ---------------------------
-	const isCalculationValid = grossIncomeNumber > 0 && !busy;
+	// --------------------------- validation ---------------------------
+	const isCalculationValid = grossAnnualIncomeNumber > 0 && !busy;
 
+	// --------------------------- calculation ---------------------------
 	async function calculate() {
 		setError("");
 		setBusy(true);
@@ -69,22 +64,24 @@ export default function FreeLancer() {
 		try {
 			const payload: FreelancerCalculatePayload = {
 				taxType: "FREELANCER",
-				grossIncome: grossIncomeNumber,
-				pension: pensionContributionNumber,
-				expenses: includeExpenses ? totalBusinessExpensesNumber : 0,
+				grossAnnualIncome: grossAnnualIncomeNumber,
+				freelancerPensionContribution: pensionContributionNumber,
+				totalBusinessExpenses: includeExpenses
+					? totalBusinessExpensesNumber
+					: 0,
 			};
 
 			const { data } = await api.post<ApiResponse<FreelancerResult>>(
-				ENDPOINTS.taxCalculate,
+				ENDPOINTS.taxCalculate("freelancer"),
 				payload,
 			);
+
+			setResult(data); // store API response (success or failure)
 
 			if (!data.success) {
 				setError(data.message || data.error || "Freelancer calculation failed");
 				return;
 			}
-
-			setResult(data.data);
 
 			addHistory({
 				type: "FREELANCER",
@@ -96,7 +93,6 @@ export default function FreeLancer() {
 				response?: { data?: { message?: string; error?: string } };
 				message?: string;
 			};
-
 			setError(
 				e.response?.data?.message ||
 					e.response?.data?.error ||
@@ -116,7 +112,7 @@ export default function FreeLancer() {
 				result ? (
 					<FreelancerResultPanel
 						result={result}
-						grossIncome={grossIncomeNumber}
+						grossAnnualIncome={grossAnnualIncomeNumber}
 						isAuthenticated={authenticated}
 					/>
 				) : null
@@ -181,5 +177,3 @@ export default function FreeLancer() {
 		</TaxPageLayout>
 	);
 }
-// -----------------------------------------------------------
-// -----------------------------------------------------------

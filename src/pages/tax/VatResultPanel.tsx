@@ -1,47 +1,47 @@
-// taxlator/src/pages/tax/VatResultPanel.tsx
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// src/pages/tax/VatResultPanel.tsx
 
-function formatNaira(value: unknown) {
-	const n = typeof value === "number" ? value : Number(value);
-	if (!Number.isFinite(n)) return "₦0.00";
-	return `₦${n.toLocaleString("en-NG", {
-		minimumFractionDigits: 2,
-		maximumFractionDigits: 2,
-	})}`;
-}
+// -----------------------------------------------------------
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { formatCurrency } from "../../utils/formatCurrency";
+import GuestCTA from "../../components/ui/resultPanel/GuestCTA";
+import type { VatResult } from "../../api/vat.types";
+import type { ApiResponse } from "../../api/api.types";
 
 type Props = {
-	result: unknown;
-	amount: number;
-	isAuthenticated: boolean; // kept for parity
+	result: ApiResponse<VatResult>;
+	isAuthenticated: boolean;
+	prefillEmail?: string;
 };
 
-export default function VatResultPanel({ result, amount }: Props) {
+// ---------------------- VAT RESULT PANEL -----------------------
+export default function VatResultPanel({
+	result,
+	isAuthenticated,
+	prefillEmail = "",
+}: Props) {
 	const navigate = useNavigate();
 	const [open, setOpen] = useState(false);
 
-	const r = useMemo(() => (result ?? {}) as Record<string, unknown>, [result]);
+	// ---------- Handle API failure ----------
+	if (!result.success) {
+		return (
+			<div className="bg-white rounded-2xl border shadow-soft p-3 text-center text-red-600">
+				<p className="font-semibold">Failed to load VAT result</p>
+				<p>{result.message ?? result.error ?? "Unknown error"}</p>
+				<button
+					onClick={() => navigate("/calculate")}
+					className="mt-3 rounded bg-brand-800 text-white py-2 px-4 text-sm font-semibold"
+				>
+					Try Again
+				</button>
+			</div>
+		);
+	}
 
-	const vatRate = typeof r.vatRate === "number" ? r.vatRate : 0;
+	const data = result.data;
 
-	const vatAmount = typeof r.vatAmount === "number" ? r.vatAmount : 0;
-
-	const excludingVat =
-		typeof r.excludingVat === "number"
-			? r.excludingVat
-			: typeof r.transactionAmount === "number"
-				? r.transactionAmount
-				: amount;
-
-	const includingVat =
-		typeof r.includingVat === "number"
-			? r.includingVat
-			: typeof r.result === "number"
-				? r.result
-				: excludingVat + vatAmount;
-
-	const ratePct = Math.round(vatRate * 1000) / 10;
+	const vatRatePct = Math.round(data.vatRate * 1000) / 10;
 
 	return (
 		<div className="bg-white rounded-2xl border shadow-soft overflow-hidden">
@@ -49,86 +49,81 @@ export default function VatResultPanel({ result, amount }: Props) {
 			<div className="p-3 text-center border-b">
 				<div className="text-sm text-slate-600">VAT Result</div>
 				<div className="mt-2 text-3xl font-extrabold text-brand-800">
-					{formatNaira(vatAmount)}
+					{formatCurrency(data.vatAmount)}
 				</div>
 				<div className="text-sm text-slate-600 mt-1">
-					VAT Amount ({ratePct}%)
+					VAT Amount ({vatRatePct}%)
 				</div>
 			</div>
 
 			{/* SUMMARY CARDS */}
-			<div className="p-3">
-				<div className="grid grid-cols-2 gap-2">
-					<div className="rounded-2xl bg-slate-50 border py-4 px-2">
-						<div className="text-xs text-slate-600 text-center">
-							Amount (Excl. VAT)
-						</div>
-						<div className="mt-1 font-semibold text-sm sm:text-base break-all text-center max-w-full">
-							{formatNaira(excludingVat)}
-						</div>
-					</div>
-
-					<div className="rounded-2xl bg-slate-50 border py-4 px-2">
-						<div className="text-xs text-slate-600 text-center">
-							Total (Incl. VAT)
-						</div>
-						<div className="mt-1 font-semibold text-sm sm:text-base break-all text-center max-w-full">
-							{formatNaira(includingVat)}
-						</div>
+			<div className="p-3 grid grid-cols-2 gap-2">
+				<div className="rounded-2xl bg-slate-50 border py-4 px-2 text-center">
+					<div className="text-xs text-slate-600">Amount (Excl. VAT)</div>
+					<div className="mt-1 font-semibold text-sm">
+						{formatCurrency(data.transactionAmount)}
 					</div>
 				</div>
 
-				{/* ACCORDION TRIGGER */}
-				<button
-					type="button"
-					onClick={() => setOpen((s) => !s)}
-					className="mt-5 w-full flex items-center justify-between rounded-2xl bg-slate-50 border px-2 py-4 text-sm font-semibold"
-				>
-					<span>View VAT Breakdown</span>
-					<span className="text-slate-500">{open ? "▴" : "▾"}</span>
-				</button>
-
-				{/* BREAKDOWN */}
-				{open && (
-					<div className="mt-4 rounded-2xl border bg-slate-50 py-4 px-2 w-full">
-						<div className="text-brand-800 font-semibold">
-							VAT Calculation Breakdown
-						</div>
-
-						<div className="mt-3 space-y-1 text-xs text-slate-700">
-							<div className="flex justify-between gap-3">
-								<div className="flex-1 break-words">
-									Transaction Amount (Excl. VAT)
-								</div>
-								<div className="font-medium whitespace-nowrap">
-									{formatNaira(excludingVat)}
-								</div>
-							</div>
-
-							<div className="flex justify-between gap-3">
-								<div className="flex-1 break-words">VAT ({ratePct}%)</div>
-								<div className="font-medium whitespace-nowrap">
-									{formatNaira(vatAmount)}
-								</div>
-							</div>
-						</div>
-
-						<hr className="my-4" />
-
-						<div className="flex justify-between text-xs text-slate-700">
-							<div>Total Amount (Incl. VAT)</div>
-							<div className="font-semibold">{formatNaira(includingVat)}</div>
-						</div>
+				<div className="rounded-2xl bg-slate-50 border py-4 px-2 text-center">
+					<div className="text-xs text-slate-600">Total (Incl. VAT)</div>
+					<div className="mt-1 font-semibold text-sm">
+						{formatCurrency(data.totalAmount)}
 					</div>
-				)}
+				</div>
+			</div>
 
-				{/* ACTION */}
+			{/* BREAKDOWN TOGGLE */}
+			<div className="px-3">
+				<button
+					onClick={() => setOpen((v) => !v)}
+					className="w-full flex justify-between items-center rounded-xl border px-3 py-3 text-sm font-semibold"
+				>
+					View VAT Breakdown
+					<span>{open ? "▴" : "▾"}</span>
+				</button>
+			</div>
+
+			{/* BREAKDOWN */}
+			{open && (
+				<div className="p-3 space-y-3 text-xs text-slate-700">
+					<div className="flex justify-between">
+						<span className="text-slate-600">Transaction Type</span>
+						<span>{data.transactionType}</span>
+					</div>
+					<div className="flex justify-between">
+						<span className="text-slate-600">Calculation Type</span>
+						<span>{data.calculationType}</span>
+					</div>
+					<div className="flex justify-between">
+						<span className="text-slate-600">Transaction Amount</span>
+						<span>{formatCurrency(data.transactionAmount)}</span>
+					</div>
+					<div className="flex justify-between">
+						<span className="text-slate-600">VAT ({vatRatePct}%)</span>
+						<span>{formatCurrency(data.vatAmount)}</span>
+					</div>
+
+					<hr />
+
+					<div className="flex justify-between font-semibold">
+						<span>Total Amount (Incl. VAT)</span>
+						<span>{formatCurrency(data.totalAmount)}</span>
+					</div>
+				</div>
+			)}
+
+			{/* ACTION */}
+			<div className="p-3">
 				<button
 					onClick={() => navigate("/calculate")}
-					className="mt-6 w-full rounded bg-brand-800 text-white py-2.5 text-sm font-semibold hover:bg-brand-900"
+					className="w-full rounded bg-brand-800 text-white py-2.5 text-sm font-semibold"
 				>
 					Calculate Another Tax
 				</button>
+
+				{/* GUEST CTA */}
+				{!isAuthenticated && <GuestCTA prefillEmail={prefillEmail} />}
 			</div>
 		</div>
 	);
