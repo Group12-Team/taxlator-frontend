@@ -61,10 +61,10 @@ export default function CalculateModal({
 			<div className="absolute inset-0 grid place-items-center p-4">
 				<div
 					ref={modalRef}
-					className="w-full max-w-xl rounded-2xl bg-slate-50 border shadow-soft overflow-hidden"
+					className="w-full max-w-xl rounded-2xl border shadow-soft overflow-hidden"
 				>
 					{/* HEADER */}
-					<div className="w-full px-5 py-4 bg-white border-b flex items-center justify-between">
+					<div className="w-full px-5 py-7 bg-white border-b flex items-center justify-between">
 						<div className="w-full text-center">
 							<div className="font-semibold text-brand-800 text-lg">
 								Calculate Your Tax
@@ -82,7 +82,7 @@ export default function CalculateModal({
 					</div>
 
 					{/* OPTION CARDS */}
-					<div className="p-5 grid sm:grid-cols-2 gap-3">
+					<div className="p-5 grid sm:grid-cols-2 gap-3 bg-slate-100">
 						<OptionCard
 							title="PAYE / PIT"
 							desc="Personal Income Tax calculator"

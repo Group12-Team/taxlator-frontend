@@ -50,13 +50,13 @@ export default function GuestCTA({ prefillEmail = "" }: Props) {
 	}
 
 	return (
-		<div className="mt-4 rounded-xl border bg-[#93a7ca] py-8 px-5">
+		<div className="w-full mt-4 rounded-xl border bg-[#f0f7ff] py-8 px-4">
 			<div className="font-semibold text-sm">Save Your Calculations</div>
 			<div className="text-xs text-slate-800 mt-1">
 				Sign up to save and track your tax history.
 			</div>
 
-			<div className="mt-3 flex gap-2">
+			<div className="mt-6 flex gap-2">
 				<input
 					value={email}
 					onChange={(e) => setEmail(e.target.value)}
@@ -67,9 +67,24 @@ export default function GuestCTA({ prefillEmail = "" }: Props) {
 				<button
 					onClick={handleProceed}
 					disabled={busy}
-					className="px-4 rounded bg-brand-800 text-white text-sm font-semibold grid place-items-center"
+					aria-busy={busy}
+					className="w-28 px-4 rounded bg-brand-800 text-white text-sm font-semibold relative"
 				>
-					{busy ? "Checking..." : "Continue"}
+					<span
+						className={busy ? "opacity-0" : "opacity-100"}
+						aria-hidden={busy}
+					>
+						Continue
+					</span>
+
+					{busy && (
+						<span
+							className="absolute inset-0 grid place-items-center"
+							aria-hidden={!busy}
+						>
+							Checking...
+						</span>
+					)}
 				</button>
 			</div>
 

@@ -5,7 +5,7 @@
 // -----------------------------------------------------------
 import { useMemo, useState } from "react";
 import TaxPageLayout from "../../pages/tax/TaxPageLayout";
-import { api } from "../../api/client";
+import { api, API_BASE } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
 import { useHistory } from "../../state/history";
 import { useAuth } from "../../state/useAuth";
@@ -17,11 +17,8 @@ import {
 	formatNumber,
 	onlyNumbers,
 } from "../../utils/numberInput";
-import type {
-	PayePitCalculatePayload,
-	PayePitResult,
-} from "../../api/tax.types";
 import type { ApiResponse } from "../../api/api.types";
+import type { PayePitResponse } from "../../types/payePit";
 
 // -----------------------------------------------------------
 export default function PayePit() {
@@ -36,11 +33,11 @@ export default function PayePit() {
 	const [annualRent, setAnnualRent] = useState("");
 	const [otherDeductions, setOtherDeductions] = useState("");
 
-	// request state triad
+	// request state
 	// ---------------------------
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
-	const [result, setResult] = useState<PayePitResult | null>(null);
+	const [result, setResult] = useState<PayePitResponse | null>(null);
 
 	// derived numeric values
 	// ---------------------------
@@ -56,7 +53,7 @@ export default function PayePit() {
 		[otherDeductions],
 	);
 
-	// form validation, proceed button enabled
+	// validation
 	// ---------------------------
 	const isCalculationValid = grossAnnualIncomeNumber > 0 && !busy;
 
@@ -72,7 +69,7 @@ export default function PayePit() {
 		setBusy(true);
 
 		try {
-			const payload: PayePitCalculatePayload = {
+			const payload = {
 				taxType: "PAYE/PIT",
 				grossAnnualIncome: grossAnnualIncomeNumber,
 				payePitPensionContribution: true,
@@ -82,40 +79,49 @@ export default function PayePit() {
 				otherDeductions: otherDeductionsNumber,
 			};
 
-			const { data } = await api.post<ApiResponse<PayePitResult>>(
+			console.log("=== Frontend PAYE/PIT API Call ===");
+			console.log("Payload sent:", payload);
+			console.log("Full URL:", API_BASE + ENDPOINTS.taxCalculate("payePit"));
+
+			const response = await api.post<ApiResponse<PayePitResponse>>(
 				ENDPOINTS.taxCalculate("payePit"),
 				payload,
 			);
 
-			if (!data.success) {
-				setError(data.message || data.error || "Calculation failed");
+			if (!response.data.success) {
+				setError(response.data.message || "Calculation failed");
 				return;
 			}
 
-			setResult(data.data);
+			const dto = response.data.data;
 
-			// ✅ log history only if authenticated
-			await addHistory({
-				type: "PAYE/PIT",
-				input: payload,
-				result: data.data,
-			});
+			console.log("=== Frontend API DTO (RAW) ===");
+			console.log(dto);
+
+			setResult(dto);
+
+			if (authenticated) {
+				await addHistory({
+					type: "PAYE/PIT",
+					input: payload,
+					result: dto,
+				});
+			}
 		} catch (err: unknown) {
 			const e = err as {
-				response?: { data?: { message?: string; error?: string } };
+				response?: { data?: { message?: string } };
 				message?: string;
 			};
+
 			setError(
-				e.response?.data?.message ||
-					e.response?.data?.error ||
-					e.message ||
-					"PAYE/PIT calculation failed",
+				e.response?.data?.message || e.message || "PAYE/PIT calculation failed",
 			);
 		} finally {
 			setBusy(false);
 		}
 	}
 
+	// ---------------------------------------------------- RENDER
 	return (
 		<TaxPageLayout
 			title="PAYE / PIT Calculator"
@@ -123,91 +129,75 @@ export default function PayePit() {
 			rightPanel={
 				result ? (
 					<PayePitResultPanel
-						result={result}
-						grossAnnualIncome={grossAnnualIncomeNumber}
+						backendResult={result}
 						isAuthenticated={authenticated}
+						prefillEmail=""
 					/>
 				) : null
 			}
 		>
 			{error && (
-				<div className="mb-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">
+				<div className="mb-3 rounded border border-red-200 bg-red-50 p-2 text-sm text-red-700">
 					{error}
 				</div>
 			)}
 
-			{/* Gross Annual Income */}
 			<CurrencyInput
 				id="grossAnnualIncome"
-				label="Gross Annual Income"
+				label={
+					<span>
+						Gross Annual Income <span className="text-red-500">*</span>
+					</span>
+				}
 				value={formatNumber(grossAnnualIncome)}
 				onChange={(v) => setGrossAnnualIncome(onlyNumbers(v))}
 			/>
 
-			{/* Pension */}
-			<div className="mt-3 rounded-lg border p-4 flex items-center justify-between">
-				<div>
-					<div className="font-medium text-xs text-slate-600">
-						Pension Contribution
-					</div>
-					<div className="text-xs text-slate-600 mt-1">8% deduction</div>
+			<div className="mt-5 rounded-lg border border-brand-200 p-4">
+				<div className="text-xs font-medium text-slate-600">
+					Pension Contribution
 				</div>
+				<div className="mt-1 text-xs text-slate-600">8% deduction</div>
 			</div>
 
-			{/* NHIS */}
-			<div className="mt-3 rounded-lg border p-4 flex items-start justify-between">
+			<div className="mt-3 flex justify-between rounded-lg border border-brand-200 p-4">
 				<div>
-					<div className="font-medium text-xs text-slate-600">
+					<div className="text-xs font-medium text-slate-600">
 						Include National Health Insurance Scheme
 					</div>
-					<div className="text-xs text-slate-500">
-						5% deduction on basic salary
-					</div>
+					<div className="text-xs text-slate-500">5% deduction</div>
 				</div>
 				<input
 					type="checkbox"
-					className="h-4 w-4 mt-2 flex-shrink-0 accent-brand-800 cursor-pointer"
+					className="h-4 w-4 accent-brand-800"
 					checked={includeNhis}
 					onChange={(e) => setIncludeNhis(e.target.checked)}
 				/>
 			</div>
 
-			{/* NHF */}
-			<div className="mt-3 mb-3 rounded-lg border p-4 flex items-start justify-between">
+			<div className="mt-3 flex justify-between rounded-lg border border-brand-200 p-4">
 				<div>
-					<div className="font-medium text-xs text-slate-700">
+					<div className="text-xs font-medium text-slate-700">
 						Include National Housing Fund
 					</div>
-					<div className="text-xs text-slate-500">
-						2.5% deduction on basic salary
-					</div>
+					<div className="text-xs text-slate-500">2.5% deduction</div>
 				</div>
 				<input
 					type="checkbox"
-					className="h-4 w-4 mt-2 flex-shrink-0 accent-brand-800 cursor-pointer"
+					className="h-4 w-4 accent-brand-800"
 					checked={includeNhf}
 					onChange={(e) => setIncludeNhf(e.target.checked)}
 				/>
 			</div>
 
-			{/* Rent relief */}
 			<CurrencyInput
 				id="rentRelief"
-				label={
-					<>
-						Rent Relief{" "}
-						<span className="text-xs font-normal text-slate-500">
-							(20% of Annual Rent)
-						</span>
-					</>
-				}
+				label="Rent Relief (20% of Annual Rent)"
 				value={formatNumber(annualRent)}
 				onChange={(v) => setAnnualRent(onlyNumbers(v))}
-				placeholder="Input Annual Rent"
-				placeholderClassName="placeholder:text-xs placeholder:text-slate-400 "
+				containerClassName="my-3"
 			/>
 
-			{/* Other deductions */}
 			<CurrencyInput
 				id="otherDeductions"
 				label="Other Deductions"
@@ -215,7 +205,6 @@ export default function PayePit() {
 				onChange={(v) => setOtherDeductions(onlyNumbers(v))}
 			/>
 
-			{/* Proceed/calculate button */}
 			<CalculateButton
 				onClick={calculate}
 				loading={busy}
@@ -224,5 +213,3 @@ export default function PayePit() {
 		</TaxPageLayout>
 	);
 }
-// -----------------------------------------------------------
-// -----------------------------------------------------------

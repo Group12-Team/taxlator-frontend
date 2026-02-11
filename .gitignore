@@ -1,3 +1,11 @@
+# src/.gitignore
+
+# .gitignore for Taxlator Frontend
+
+# Environment files
+.env
+.env.*
+
 # Logs
 logs
 *.log

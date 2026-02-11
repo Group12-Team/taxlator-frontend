@@ -40,16 +40,15 @@ export default function CurrencyInput({
 				{label}
 			</label>
 
-			<div className="relative">
-				<span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+			<div className="relative bg-slate-100 ">
+				<span className="pointer-events-none absolute left-2 top-[1rem] -translate-y-[0.5rem] text-slate-900 text-[1.1rem]">
 					₦
 				</span>
 
 				<input
 					id={id}
 					className={`
-						w-full box-border rounded border pl-8 pr-3 py-2 mb-1
-						focus:outline-none focus:ring-2 focus:ring-brand-500
+						w-full box-border rounded-lg border border-brand-200 pl-[1.4rem] pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-200
 						${inputClassName}
 						${placeholderClassName}
 					`}

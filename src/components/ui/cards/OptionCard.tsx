@@ -20,7 +20,7 @@ const OptionCard = ({
 	return (
 		<button
 			onClick={onClick}
-			className=" group text-left w-full rounded-xl border bg-white p-4
+			className=" group text-left w-full rounded-xl border border-brand-600 bg-white p-4
 								 hover:bg-brand-800 hover:border-brand-200
        							 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400
         						transition flex items-center gap-4"

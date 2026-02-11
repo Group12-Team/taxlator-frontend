@@ -18,13 +18,12 @@ export interface VatCalculatePayload {
 
 // ------------------------------- VAT RESULT ------------------------------
 export interface VatResult {
-	transactionAmount: number; // Excluding VAT
-	vatAmount: number; // Calculated VAT
-	totalAmount: number; // Including VAT (or same as transactionAmount for remove)
-	vatRate: number; // e.g., 0.075
+	transactionAmount: number;
+	vatAmount: number;
+	totalAmount: number;
+	vatRate: number;
 	calculationType: VatCalculationType;
 	transactionType: VatTransactionType;
-	customer?: string; // optional, only if provided
-	invoiceNumber?: string; // optional, only if provided
+	customer?: string;
+	invoiceNumber?: string;
 }
-

@@ -14,7 +14,7 @@ export default function TaxPageLayout({
 	rightPanel?: React.ReactNode;
 }) {
 	return (
-		<div className="bg-slate-200 min-h-[80vh] px-4 py-8">
+		<div className="w-full bg-slate-100 min-h-[80vh] px-4 py-2 pb-8">
 			<div className="max-w-5xl mx-auto">
 				<Link
 					to="/calculate"
@@ -24,13 +24,13 @@ export default function TaxPageLayout({
 				</Link>
 
 				<div className="mt-4 grid lg:grid-cols-2 gap-6 items-start">
-					<div className="bg-white rounded-2xl border p-6 shadow-soft">
+					<div className="bg-white rounded-2xl border py-7 px-5 shadow-soft">
 						<div className="text-brand-800 font-semibold">{title}</div>
 						<div className="text-xs text-slate-600 mt-1">{subtitle}</div>
 						<div className="mt-6">{children}</div>
 					</div>
 
-					<div className="bg-white rounded-2xl border p-6 shadow-soft">
+					<div className="bg-white rounded-2xl border py-7 px-5 shadow-soft">
 						{rightPanel ? (
 							rightPanel
 						) : (
