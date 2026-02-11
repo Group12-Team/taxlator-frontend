@@ -1,18 +1,14 @@
 // src/state/auth.provider.tsx
 
+import { api } from "../api/client";
+
 // ----------------------------------------------
 import React, { useEffect, useMemo, useState, useCallback } from "react";
-import {
-	api,
-	clearToken,
-	extractToken,
-	getToken,
-	setToken,
-} from "../api/client";
+import { clearToken, extractToken, getToken, setToken } from "../api/client";
 import { ENDPOINTS } from "../api/endpoints";
 import { AuthCtx } from "./auth.context";
 import type { AuthContextValue } from "./auth.context";
-import type { User, SignUpPayload, SignInPayload } from "../api/types";
+import type { User, SignUpPayload, SignInPayload } from "../api/auth.types";
 
 // -------------------------------- AUTH PROVIDER --------------------------------
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -65,7 +61,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			},
 
 			async verifyEmail(payload: { email: string; code: string }) {
-				const { data } = await api.post(ENDPOINTS.verifyEmail, payload);
+				// Ensure code is string
+				const body = { email: payload.email, code: String(payload.code) };
+				const { data } = await api.post(ENDPOINTS.verifyEmail, body);
 				await refresh();
 				return data;
 			},

@@ -1,15 +1,11 @@
 // src/pages/otherPages/verifyEmail.tsx
-
 // -----------------------------------------------------------
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { API_BASE } from "../../api/client"; // ✅ Import correct API base
 
 type VerifyState = { email?: string };
 type ApiResponse = { success?: boolean; message?: string };
-
-const API_BASE =
-	import.meta.env.VITE_API_BASE_URL ||
-	"https://group12-taxlator-api.onrender.com";
 
 function isEmail(v: string) {
 	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
@@ -21,7 +17,6 @@ function getErrorMessage(err: unknown) {
 		: "Network error. Please try again.";
 }
 
-// ----------------------------------- VERIFY EMAIL PAGE --------------------------------
 export default function VerifyEmail() {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -30,16 +25,15 @@ export default function VerifyEmail() {
 	const [email, setEmail] = useState(state.email || "");
 	const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""]);
 	const [loading, setLoading] = useState(false);
-
 	const [resending, setResending] = useState(false);
 	const [cooldown, setCooldown] = useState(0);
-
 	const [error, setError] = useState("");
 	const [info, setInfo] = useState("");
 
 	const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
 	const code = useMemo(() => digits.join(""), [digits]);
 
+	// Cooldown timer for resending
 	useEffect(() => {
 		if (!cooldown) return;
 		const t = setInterval(() => setCooldown((s) => (s > 0 ? s - 1 : 0)), 1000);
@@ -84,7 +78,6 @@ export default function VerifyEmail() {
 		e.preventDefault();
 		setError("");
 		setInfo("");
-
 		setDigits((prev) => {
 			const next = [...prev];
 			for (let i = 0; i < 6; i++) next[i] = nums[i] || "";
@@ -110,6 +103,12 @@ export default function VerifyEmail() {
 
 		setLoading(true);
 		try {
+			console.log(
+				"VerifyEmail POST request:",
+				`${API_BASE}/api/auth/verify-email`,
+				{ email: normalizedEmail, code },
+			);
+
 			const resp = await fetch(`${API_BASE}/api/auth/verify-email`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -149,6 +148,12 @@ export default function VerifyEmail() {
 
 		setResending(true);
 		try {
+			console.log(
+				"Resend code POST request:",
+				`${API_BASE}/api/auth/send-code`,
+				{ email: normalizedEmail },
+			);
+
 			const resp = await fetch(`${API_BASE}/api/auth/send-code`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -197,7 +202,6 @@ export default function VerifyEmail() {
 							{error}
 						</div>
 					)}
-
 					{info && (
 						<div className="mb-3 text-sm text-green-800 bg-green-50 border border-green-200 rounded p-2">
 							{info}
@@ -216,12 +220,12 @@ export default function VerifyEmail() {
 					<label className="text-xs font-semibold text-slate-700 mt-4 block">
 						Verification Code
 					</label>
-
 					<div className="mt-2 flex items-center justify-between gap-2">
 						{digits.map((d, idx) => (
 							<input
 								key={idx}
-								ref={(el) => {
+								ref={(el: HTMLInputElement | null) => {
+									// Assign the ref to inputsRef, return void
 									inputsRef.current[idx] = el;
 								}}
 								className="w-12 h-12 rounded border text-center text-lg font-semibold tracking-widest"
@@ -267,7 +271,6 @@ export default function VerifyEmail() {
 							Sign in
 						</Link>
 					</div>
-
 					<div className="mt-2 text-xs text-slate-600 text-center">
 						Wrong email?{" "}
 						<Link

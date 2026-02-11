@@ -5,11 +5,6 @@ import axios from "axios";
 import type { AnyJson } from "../api/api.types";
 
 // -------------------------------- AXIOS CLIENT SETUP --------------------------------
-// Use environment variable from .env files, fallback to production URL
-// export const API_BASE =
-// 	import.meta.env.VITE_API_BASE_URL ||
-// 	"https://group12-taxlator-api.onrender.com";
-
 export const API_BASE = "https://group12-taxlator-api.onrender.com";
 
 // Log the API base to verify environment
