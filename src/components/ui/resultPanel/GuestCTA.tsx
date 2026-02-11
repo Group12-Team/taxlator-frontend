@@ -50,7 +50,7 @@ export default function GuestCTA({ prefillEmail = "" }: Props) {
 	}
 
 	return (
-		<div className="w-full mt-4 rounded-xl border bg-[#f0f7ff] py-8 px-4">
+		<div className="w-full mt-6 rounded-xl border bg-[#f0f7ff] py-8 px-4">
 			<div className="font-semibold text-sm">Save Your Calculations</div>
 			<div className="text-xs text-slate-800 mt-1">
 				Sign up to save and track your tax history.
