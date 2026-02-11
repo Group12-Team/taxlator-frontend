@@ -1,4 +1,6 @@
-// src/pages/VerifyEmail.tsx
+// src/pages/otherPages/verifyEmail.tsx
+
+// -----------------------------------------------------------
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -18,6 +20,7 @@ function getErrorMessage(err: unknown) {
 		: "Network error. Please try again.";
 }
 
+// ----------------------------------- VERIFY EMAIL PAGE --------------------------------
 export default function VerifyEmail() {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -106,7 +109,7 @@ export default function VerifyEmail() {
 
 		setLoading(true);
 		try {
-			const resp = await fetch(`${API_BASE}/api/auth/verifyEmail`, {
+			const resp = await fetch(`${API_BASE}/api/auth/verify-email`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				credentials: "include",
@@ -122,7 +125,7 @@ export default function VerifyEmail() {
 
 			setInfo(
 				data?.message ||
-					"Email verified successfully. Redirecting to sign in..."
+					"Email verified successfully. Redirecting to sign in...",
 			);
 			setTimeout(() => navigate("/signin", { replace: true }), 800);
 		} catch (e: unknown) {
@@ -145,7 +148,7 @@ export default function VerifyEmail() {
 
 		setResending(true);
 		try {
-			const resp = await fetch(`${API_BASE}/api/auth/sendVerificationCode`, {
+			const resp = await fetch(`${API_BASE}/api/auth/send-code`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				credentials: "include",
@@ -250,8 +253,8 @@ export default function VerifyEmail() {
 						{resending
 							? "Sending..."
 							: cooldown > 0
-							? `Resend code (${cooldown}s)`
-							: "Resend code"}
+								? `Resend code (${cooldown}s)`
+								: "Resend code"}
 					</button>
 
 					<div className="mt-4 text-xs text-slate-600 text-center">

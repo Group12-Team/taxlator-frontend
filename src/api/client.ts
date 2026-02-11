@@ -2,7 +2,7 @@
 
 // -------------------------------
 import axios from "axios";
-import type { AnyJson } from "./api.types";
+import type { AnyJson } from "../api/api.types";
 
 // -------------------------------- AXIOS CLIENT SETUP --------------------------------
 // Use environment variable from .env files, fallback to production URL

@@ -2,7 +2,8 @@
 
 // --------------------------------------
 import { createContext, useContext } from "react";
-import type { AnyJson, SignInPayload, SignUpPayload, User } from "../api/types";
+import type { SignInPayload, SignUpPayload, User } from "../api/auth.types";
+import type { AnyJson } from "../api/api.types";
 
 // ------------------------------ AUTH CONTEXT & HOOKS --------------------------------
 export type AuthContextValue = {
