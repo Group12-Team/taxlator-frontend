@@ -8,7 +8,8 @@ type VerifyState = { email?: string };
 type ApiResponse = { success?: boolean; message?: string };
 
 const API_BASE =
-	import.meta.env.VITE_API_BASE_URL || "https://gov-taxlator-api.onrender.com";
+	import.meta.env.VITE_API_BASE_URL ||
+	"https://group12-taxlator-api.onrender.com";
 
 function isEmail(v: string) {
 	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
