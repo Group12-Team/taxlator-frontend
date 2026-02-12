@@ -1,36 +1,38 @@
 // src/pages/otherPages/SignIn.tsx
-// ----------------------------------------------
-// Sign In Page
-// ----------------------------------------------
 
-import React, { useState } from "react";
+// ----------------------------------------------
+// SignIn page component: handles user login, errors, password visibility, and redirects.
+// ----------------------------------------------
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";
-import { api } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
 import MotionButton from "../../components/ui/buttons/MotionButton";
 import inputStyles from "../../components/ui/inputs/InputStyles";
 import FormButton from "../../components/ui/buttons/FormButton";
+import { api } from "../../api/client";
 import { AxiosError } from "axios";
 
 // ----------------------------------------------
-// types
-// ----------------------------------------------
+// API response type
 type SigninResponse = {
 	success?: boolean;
 	message?: string;
-	token?: string;
 };
 
-// ----------------------------------------------
+// ------------------------------------- SIGN IN COMPONENT -------------------------------------
 export default function SignIn() {
-	const { refresh } = useAuth();
+	const { user, refresh } = useAuth(); // ✅ access auth context
 	const navigate = useNavigate();
 	const location = useLocation();
 
-	// Pre-fill email from GuestCTA
-	const initialEmail = (location.state as { email?: string })?.email ?? "";
+	// Redirect if already signed in
+	useEffect(() => {
+		if (user) navigate("/dashboard", { replace: true });
+	}, [user, navigate]);
 
+	// Pre-fill email if passed from previous page
+	const initialEmail = (location.state as { email?: string })?.email ?? "";
 	const [email, setEmail] = useState(initialEmail);
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
@@ -38,46 +40,37 @@ export default function SignIn() {
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 
+	// Form validity
 	const isFormValid =
 		email.trim().length > 0 && password.trim().length >= 8 && !busy;
 
-	async function onSubmit(e: React.FormEvent) {
+	// ------------------------- Form submission -------------------------
+	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError("");
 		setBusy(true);
 
 		try {
-			// Call backend directly
-			const { data } = await api.post<SigninResponse>(ENDPOINTS.signin, {
-				email,
-				password,
-			});
+			// ✅ Call API to sign in; cookies are HttpOnly
+			const { data } = await api.post<SigninResponse>(
+				ENDPOINTS.signin,
+				{ email, password },
+				{ withCredentials: true }, // important to set HttpOnly cookie
+			);
 
 			if (!data.success) {
 				setError(data.message || "Signin failed");
 				return;
 			}
 
-			if (!data.token) {
-				setError("Signin succeeded but no token returned");
-				return;
-			}
-
-			// Store JWT based on "Remember me"
-			if (rememberMe) {
-				localStorage.setItem("token", data.token);
-			} else {
-				sessionStorage.setItem("token", data.token);
-			}
-
-			// Refresh user state in AuthProvider
+			// ✅ Refresh auth context: loads current user from cookie
 			await refresh();
 
-			// Redirect to calculation page
-			navigate("/calculate");
+			// ✅ Redirect to dashboard after successful login
+			navigate("/dashboard", { replace: true });
 		} catch (err: unknown) {
 			if (err instanceof AxiosError) {
-				setError(err.response?.data?.message ?? "Signin failed");
+				setError(err.response?.data?.message || "Signin failed");
 			} else if (err instanceof Error) {
 				setError(err.message);
 			} else {
@@ -86,8 +79,9 @@ export default function SignIn() {
 		} finally {
 			setBusy(false);
 		}
-	}
+	};
 
+	// ------------------------- JSX -------------------------
 	return (
 		<div className="bg-slate-200 min-h-[80vh] w-full flex items-center justify-center px-4 py-10">
 			<div className="w-full max-w-md bg-white rounded-2xl border shadow-soft overflow-hidden">
@@ -99,15 +93,15 @@ export default function SignIn() {
 					<div className="text-xs text-slate-500">Sign in to your account</div>
 				</div>
 
-				{/* SIGN-IN FORM */}
 				<form className="p-5" onSubmit={onSubmit}>
+					{/* Error message */}
 					{error && (
 						<div className="mb-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">
 							{error}
 						</div>
 					)}
 
-					{/* EMAIL INPUT */}
+					{/* Email input */}
 					<label className="text-xs font-semibold text-slate-700 mb-1 block">
 						Email
 					</label>
@@ -120,11 +114,10 @@ export default function SignIn() {
 						type="email"
 					/>
 
-					{/* PASSWORD INPUT */}
+					{/* Password input with toggle */}
 					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
 						Password
 					</label>
-
 					<div className="relative mt-1">
 						<input
 							className={inputStyles.inputBase}
@@ -134,8 +127,6 @@ export default function SignIn() {
 							placeholder="Enter your password"
 							required
 						/>
-
-						{/* SHOW PASSWORD */}
 						<button
 							type="button"
 							onClick={() => setShowPassword((prev) => !prev)}
@@ -146,7 +137,7 @@ export default function SignIn() {
 						</button>
 					</div>
 
-					{/* REMEMBER ME / FORGOT PASSWORD */}
+					{/* Remember me + forgot password */}
 					<div className="mt-2 flex items-center justify-between text-xs">
 						<label className="flex items-center gap-2 cursor-pointer text-slate-600">
 							<input
@@ -168,14 +159,14 @@ export default function SignIn() {
 						</Link>
 					</div>
 
-					{/* SIGN-IN BUTTON */}
+					{/* Submit button */}
 					<MotionButton className="mt-7 w-full">
 						<FormButton enabled={isFormValid} loading={busy}>
 							{busy ? "Signing in..." : "Sign In"}
 						</FormButton>
 					</MotionButton>
 
-					{/* SIGN-UP NO ACCOUNT */}
+					{/* Sign up link */}
 					<div className="mt-4 text-xs text-slate-600 text-center">
 						Don&apos;t have an account?{" "}
 						<Link

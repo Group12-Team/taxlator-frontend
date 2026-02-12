@@ -1,6 +1,8 @@
 // src/pages/otherPages/SignUp.tsx
 
 // ----------------------------------------------
+// SignUp page component: handles user registration, password validation, and redirects to email verification.
+// ----------------------------------------------
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";
@@ -10,13 +12,18 @@ import inputStyles from "../../components/ui/inputs/InputStyles";
 import FormButton from "../../components/ui/buttons/FormButton";
 import PasswordHelper from "../../components/ui/inputs/PasswordHelper";
 
-// -------------------------------- SIGN UP PAGE --------------------------------
+// -------------------------------- SIGN UP COMPONENT --------------------------------
 export default function SignUp() {
-	const { signup } = useAuth();
+	const { signup } = useAuth(); // ✅ use auth context for signup
 	const navigate = useNavigate();
+	const location = useLocation();
 
+	// ------------------ Form state ------------------
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
+	const [email, setEmail] = useState(
+		(location.state as { email?: string })?.email ?? "",
+	);
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
@@ -25,16 +32,15 @@ export default function SignUp() {
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 	const [passwordFocused, setPasswordFocused] = useState(false);
-	const location = useLocation();
-	const initialEmail = (location.state as { email?: string })?.email ?? "";
-	const [email, setEmail] = useState(initialEmail);
 
+	// ------------------ Form validation ------------------
 	const hasNames = firstName.trim().length > 0 && lastName.trim().length > 0;
 	const hasValidPassword = password.length >= 8 && password === confirmPassword;
 	const isFormValid =
 		hasNames && email.trim().length > 0 && hasValidPassword && agree && !busy;
 
-	async function onSubmit(e: React.FormEvent) {
+	// ------------------ Form submission ------------------
+	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError("");
 
@@ -44,9 +50,11 @@ export default function SignUp() {
 		}
 
 		setBusy(true);
-
 		try {
+			// ✅ Signup via AuthProvider
 			await signup({ firstName, lastName, email, password, confirmPassword });
+
+			// ✅ Redirect to email verification page with pre-filled email
 			navigate("/verify-email", { state: { email } });
 		} catch (err: unknown) {
 			if (err instanceof AxiosError) {
@@ -59,8 +67,9 @@ export default function SignUp() {
 		} finally {
 			setBusy(false);
 		}
-	}
+	};
 
+	// ------------------ JSX ------------------
 	return (
 		<div className="bg-slate-200 min-h-[80vh] w-full flex items-center justify-center px-4 py-10">
 			<div className="w-full max-w-md bg-white rounded-2xl border shadow-soft overflow-hidden">
@@ -75,12 +84,14 @@ export default function SignUp() {
 				</div>
 
 				<form className="p-5 overflow-x-hidden" onSubmit={onSubmit}>
+					{/* Error message */}
 					{error && (
 						<div className="mb-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">
 							{error}
 						</div>
 					)}
 
+					{/* First & Last Name */}
 					<label className="text-xs font-semibold text-slate-700 mb-1 block">
 						First Name
 					</label>
@@ -103,6 +114,7 @@ export default function SignUp() {
 						required
 					/>
 
+					{/* Email */}
 					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
 						Email Address
 					</label>
@@ -115,6 +127,7 @@ export default function SignUp() {
 						required
 					/>
 
+					{/* Password */}
 					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
 						Password
 					</label>
@@ -139,6 +152,7 @@ export default function SignUp() {
 					</div>
 					<PasswordHelper visible={passwordFocused} />
 
+					{/* Confirm Password */}
 					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
 						Confirm Password
 					</label>
@@ -160,6 +174,7 @@ export default function SignUp() {
 						</button>
 					</div>
 
+					{/* Terms & Privacy */}
 					<div className="mt-2 flex items-start gap-2 text-xs">
 						<input
 							type="checkbox"
@@ -185,12 +200,14 @@ export default function SignUp() {
 						</p>
 					</div>
 
+					{/* Submit button */}
 					<MotionButton className="mt-7 w-full">
 						<FormButton enabled={isFormValid} loading={busy}>
 							{busy ? "Creating..." : "Sign Up"}
 						</FormButton>
 					</MotionButton>
 
+					{/* Sign in link */}
 					<div className="mt-4 text-xs text-slate-600 text-center">
 						Already have an account?{" "}
 						<Link to="/signin" className="text-brand-800 font-semibold">

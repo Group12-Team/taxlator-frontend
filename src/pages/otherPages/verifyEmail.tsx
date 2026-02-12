@@ -1,9 +1,13 @@
-// src/pages/otherPages/verifyEmail.tsx
-// -----------------------------------------------------------
+// src/pages/otherPages/VerifyEmail.tsx
+
+// ----------------------------------------------
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { API_BASE } from "../../api/client"; // ✅ Import correct API base
+import { useAuth } from "../../state/useAuth";
+import { api } from "../../api/client";
+import { ENDPOINTS } from "../../api/endpoints";
 
+// ------------------------------------ Verify Email Page ------------------------------------
 type VerifyState = { email?: string };
 type ApiResponse = { success?: boolean; message?: string };
 
@@ -22,6 +26,8 @@ export default function VerifyEmail() {
 	const location = useLocation();
 	const state = (location.state as VerifyState) || {};
 
+	const auth = useAuth(); // ✅ access auth context
+
 	const [email, setEmail] = useState(state.email || "");
 	const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""]);
 	const [loading, setLoading] = useState(false);
@@ -33,6 +39,11 @@ export default function VerifyEmail() {
 	const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
 	const code = useMemo(() => digits.join(""), [digits]);
 
+	// Redirect immediately if user is already signed in
+	useEffect(() => {
+		if (auth.user) navigate("/calculate", { replace: true });
+	}, [auth.user, navigate]);
+
 	// Cooldown timer for resending
 	useEffect(() => {
 		if (!cooldown) return;
@@ -40,6 +51,7 @@ export default function VerifyEmail() {
 		return () => clearInterval(t);
 	}, [cooldown]);
 
+	// ---------------------- Digit input handlers ----------------------
 	const setDigitAt = (idx: number, val: string) => {
 		const onlyDigit = (val || "").replace(/\D/g, "").slice(-1);
 		setDigits((prev) => {
@@ -53,7 +65,6 @@ export default function VerifyEmail() {
 		setError("");
 		setInfo("");
 		setDigitAt(idx, val);
-
 		const nextVal = (val || "").replace(/\D/g, "");
 		if (nextVal && idx < 5) inputsRef.current[idx + 1]?.focus();
 	};
@@ -86,6 +97,7 @@ export default function VerifyEmail() {
 		inputsRef.current[Math.min(nums.length, 6) - 1]?.focus();
 	};
 
+	// ------------------------------ Handlers -----------------------------
 	const verify = async () => {
 		setError("");
 		setInfo("");
@@ -103,31 +115,28 @@ export default function VerifyEmail() {
 
 		setLoading(true);
 		try {
-			console.log(
-				"VerifyEmail POST request:",
-				`${API_BASE}/api/auth/verify-email`,
-				{ email: normalizedEmail, code },
-			);
-
-			const resp = await fetch(`${API_BASE}/api/auth/verify-email`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				credentials: "include",
-				body: JSON.stringify({ email: normalizedEmail, code }),
+			const { data } = await api.post<ApiResponse>(ENDPOINTS.verifyEmail, {
+				email: normalizedEmail,
+				code,
 			});
 
-			const data: ApiResponse = await resp.json().catch(() => ({}));
-
-			if (!resp.ok) {
-				setError(data?.message || "Verification failed.");
+			if (!data.success) {
+				setError(data.message || "Verification failed.");
 				return;
 			}
 
-			setInfo(
-				data?.message ||
-					"Email verified successfully. Redirecting to sign in...",
-			);
-			setTimeout(() => navigate("/signin", { replace: true }), 800);
+			// ✅ Auto-refresh user after verification
+			await auth.refresh();
+
+			setInfo(data.message || "Email verified successfully! Redirecting...");
+
+			// Redirect automatically when user is loaded
+			const redirectCheck = setInterval(() => {
+				if (auth.user) {
+					clearInterval(redirectCheck);
+					navigate("/calculate", { replace: true });
+				}
+			}, 100);
 		} catch (e: unknown) {
 			setError(getErrorMessage(e));
 		} finally {
@@ -148,27 +157,19 @@ export default function VerifyEmail() {
 
 		setResending(true);
 		try {
-			console.log(
-				"Resend code POST request:",
-				`${API_BASE}/api/auth/send-code`,
-				{ email: normalizedEmail },
+			const { data } = await api.post<ApiResponse>(
+				ENDPOINTS.sendVerificationCode,
+				{
+					email: normalizedEmail,
+				},
 			);
 
-			const resp = await fetch(`${API_BASE}/api/auth/send-code`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				credentials: "include",
-				body: JSON.stringify({ email: normalizedEmail }),
-			});
-
-			const data: ApiResponse = await resp.json().catch(() => ({}));
-
-			if (!resp.ok) {
-				setError(data?.message || "Could not resend code.");
+			if (!data.success) {
+				setError(data.message || "Could not resend code.");
 				return;
 			}
 
-			setInfo(data?.message || "Verification code sent.");
+			setInfo(data.message || "Verification code sent.");
 			setCooldown(60);
 		} catch (e: unknown) {
 			setError(getErrorMessage(e));
@@ -177,6 +178,7 @@ export default function VerifyEmail() {
 		}
 	};
 
+	// ------------------------------ JSX -----------------------------
 	return (
 		<div className="bg-slate-200 min-h-[80vh] flex items-center justify-center px-4 py-10">
 			<div className="w-full max-w-md bg-white rounded-2xl border shadow-soft overflow-hidden">
@@ -224,8 +226,7 @@ export default function VerifyEmail() {
 						{digits.map((d, idx) => (
 							<input
 								key={idx}
-								ref={(el: HTMLInputElement | null) => {
-									// Assign the ref to inputsRef, return void
+								ref={(el) => {
 									inputsRef.current[idx] = el;
 								}}
 								className="w-12 h-12 rounded border text-center text-lg font-semibold tracking-widest"
