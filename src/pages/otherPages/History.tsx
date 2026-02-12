@@ -4,10 +4,11 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { api } from "../../api/client";
-import type { HistoryItem } from "../../types/history.type";
-import { useAuth } from "../../state/auth.context";
+import type { HistoryItemDTO, HistoryType } from "../../types/history.type";
+import type { GetHistoryResponse } from "../../api/history.types";
+import { useAuth } from "../../state/useAuth";
 
-function typeLabel(t: HistoryItem["type"]) {
+function typeLabel(t: HistoryType) {
 	switch (t) {
 		case "PAYE/PIT":
 			return "PAYE / PIT";
@@ -25,7 +26,7 @@ function typeLabel(t: HistoryItem["type"]) {
 export default function History() {
 	const { authenticated } = useAuth();
 
-	const [items, setItems] = useState<HistoryItem[]>([]);
+	const [items, setItems] = useState<HistoryItemDTO[]>([]);
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	const [nextCursor, setNextCursor] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
@@ -36,12 +37,14 @@ export default function History() {
 
 			setLoading(true);
 			try {
-				const res = await api.get("/history", {
+				const res = await api.get<GetHistoryResponse>("/history", {
 					params: { limit: 10, cursor },
 				});
 
-				setItems((prev) => [...prev, ...res.data.items]);
-				setNextCursor(res.data.nextCursor ?? null);
+				const newItems = res.data.items;
+
+				setItems((prev) => [...prev, ...newItems]);
+				setNextCursor(res.data.nextCursor);
 			} finally {
 				setLoading(false);
 			}
@@ -123,27 +126,24 @@ export default function History() {
 								</div>
 							) : (
 								<div className="divide-y">
-									{items.map(
-										(it) =>
-											it._id && (
-												<button
-													key={it._id}
-													onClick={() => setSelectedId(it._id ?? null)}
-													className={`w-full text-left p-4 hover:bg-slate-50 ${
-														selectedId === it._id ? "bg-slate-50" : ""
-													}`}
-												>
-													<div className="flex items-center justify-between gap-3">
-														<div className="text-sm font-semibold">
-															{typeLabel(it.type)}
-														</div>
-														<div className="text-xs text-slate-500">
-															{new Date(it.createdAt).toLocaleString()}
-														</div>
-													</div>
-												</button>
-											),
-									)}
+									{items.map((it) => (
+										<button
+											key={it._id}
+											onClick={() => setSelectedId(it._id)}
+											className={`w-full text-left p-4 hover:bg-slate-50 ${
+												selectedId === it._id ? "bg-slate-50" : ""
+											}`}
+										>
+											<div className="flex items-center justify-between gap-3">
+												<div className="text-sm font-semibold">
+													{typeLabel(it.type)}
+												</div>
+												<div className="text-xs text-slate-500">
+													{new Date(it.createdAt).toLocaleString()}
+												</div>
+											</div>
+										</button>
+									))}
 
 									{nextCursor && (
 										<button

@@ -1,11 +1,11 @@
 // src/state/auth.context.ts
 
-// --------------------------------------
-import { createContext, useContext } from "react";
+// ----------------------------------------------
+import { createContext } from "react";
 import type { SignInPayload, SignUpPayload, User } from "../api/auth.types";
 import type { AnyJson } from "../api/api.types";
 
-// ------------------------------ AUTH CONTEXT & HOOKS --------------------------------
+// ------------------------------ AUTH CONTEXT TYPE --------------------------------
 export type AuthContextValue = {
 	user: User | null;
 	loading: boolean;
@@ -21,12 +21,5 @@ export type AuthContextValue = {
 	refresh: () => Promise<void>;
 };
 
+// ------------------------------ AUTH CONTEXT --------------------------------
 export const AuthCtx = createContext<AuthContextValue | null>(null);
-
-export function useAuth(): AuthContextValue {
-	const ctx = useContext(AuthCtx);
-	if (!ctx) {
-		throw new Error("useAuth must be used within AuthProvider");
-	}
-	return ctx;
-}

@@ -1,33 +1,49 @@
 // src/components/Navbar.tsx
+
+// ----------------------------------------------
 import React, { useState } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import CalculateModal from "../../components/ui/modals/CalculateModal";
 import { useAuth } from "../../state/useAuth";
 import { Menu, X } from "lucide-react";
 
+// ------------------------------ NAVBAR COMPONENT --------------------------------
 function NavItem({
 	to,
 	children,
 	onClick,
+	className = "",
 }: {
-	to: string;
+	to?: string;
 	children: React.ReactNode;
 	onClick?: () => void;
+	className?: string;
 }) {
+	if (to) {
+		return (
+			<NavLink
+				to={to}
+				onClick={onClick}
+				className={({ isActive }) =>
+					`block text-sm font-medium px-3 py-2 rounded ${
+						isActive
+							? "text-brand-700 bg-brand-50"
+							: "text-slate-700 hover:text-brand-700 hover:bg-slate-50"
+					} ${className}`
+				}
+			>
+				{children}
+			</NavLink>
+		);
+	}
+
 	return (
-		<NavLink
-			to={to}
+		<button
 			onClick={onClick}
-			className={({ isActive }) =>
-				`block text-sm font-medium px-2 py-2 rounded ${
-					isActive
-						? "text-brand-700 bg-brand-50"
-						: "text-slate-700 hover:text-brand-700 hover:bg-slate-50"
-				}`
-			}
+			className={`block text-sm font-medium px-3 py-2 rounded text-slate-700 hover:text-brand-700 hover:bg-slate-50 ${className}`}
 		>
 			{children}
-		</NavLink>
+		</button>
 	);
 }
 
@@ -39,16 +55,41 @@ export default function Navbar() {
 	const [openCalc, setOpenCalc] = useState(false);
 	const [mobileOpen, setMobileOpen] = useState(false);
 
-	if (loading) {
-		return null;
-	}
+	if (loading) return null;
 
-	const isCalculateActive =
-		openCalc || location.pathname.startsWith("/calculate");
+	const isCalculateActive = location.pathname.startsWith("/calculate");
 
 	function closeMobile() {
 		setMobileOpen(false);
 	}
+
+	// 🔹 Compute auth button live on each render
+	const authButton = (
+		<button
+			onClick={() => (authenticated ? logout() : navigate("/signin"))}
+			className="px-3 py-2 rounded border text-sm hover:bg-slate-50 w-full sm:w-auto"
+		>
+			{authenticated ? "Logout" : "Login"}
+		</button>
+	);
+
+	const navItems: Array<{
+		label: string;
+		path?: string;
+		action?: () => void;
+		authOnly?: boolean;
+		isCalculate?: boolean;
+	}> = [
+		{ label: "Home", path: "/" },
+		{ label: "Calculate", action: () => setOpenCalc(true), isCalculate: true },
+		{ label: "History", path: "/history", authOnly: true },
+		{ label: "Tax Guides", path: "/taxguide" },
+		{ label: "About", path: "/about" },
+	];
+
+	const filteredNavItems = navItems.filter(
+		(item) => !item.authOnly || authenticated,
+	);
 
 	return (
 		<>
@@ -69,70 +110,27 @@ export default function Navbar() {
 
 					{/* CENTER: Desktop nav */}
 					<nav className="hidden md:flex flex-1 items-center justify-center gap-2">
-						<NavLink
-							to="/"
-							className={({ isActive }) =>
-								`px-3 py-2 rounded text-sm font-medium ${
-									isActive
-										? "text-brand-700 bg-brand-50"
-										: "text-slate-700 hover:text-brand-700 hover:bg-slate-50"
-								}`
-							}
-						>
-							Home
-						</NavLink>
-
-						<button
-							onClick={() => setOpenCalc(true)}
-							className={`px-3 py-2 rounded text-sm font-medium ${
-								isCalculateActive
-									? "text-brand-700 bg-brand-50"
-									: "text-slate-700 hover:text-brand-700 hover:bg-slate-50"
-							}`}
-						>
-							Calculate
-						</button>
-
-						{authenticated && (
-							<NavLink
-								to="/history"
-								className={({ isActive }) =>
-									`px-3 py-2 rounded text-sm font-medium ${
-										isActive
-											? "text-brand-700 bg-brand-50"
-											: "text-slate-700 hover:text-brand-700 hover:bg-slate-50"
-									}`
-								}
-							>
-								History
-							</NavLink>
+						{filteredNavItems.map((item, idx) =>
+							item.path ? (
+								<NavItem key={idx} to={item.path}>
+									{item.label}
+								</NavItem>
+							) : item.isCalculate ? (
+								<NavItem
+									key={idx}
+									onClick={item.action}
+									className={
+										isCalculateActive ? "text-brand-700 bg-brand-50" : ""
+									}
+								>
+									{item.label}
+								</NavItem>
+							) : (
+								<NavItem key={idx} onClick={item.action}>
+									{item.label}
+								</NavItem>
+							),
 						)}
-
-						<NavLink
-							to="/taxguide"
-							className={({ isActive }) =>
-								`px-3 py-2 rounded text-sm font-medium ${
-									isActive
-										? "text-brand-700 bg-brand-50"
-										: "text-slate-700 hover:text-brand-700 hover:bg-slate-50"
-								}`
-							}
-						>
-							Tax Guides
-						</NavLink>
-
-						<NavLink
-							to="/about"
-							className={({ isActive }) =>
-								`px-3 py-2 rounded text-sm font-medium ${
-									isActive
-										? "text-brand-700 bg-brand-50"
-										: "text-slate-700 hover:text-brand-700 hover:bg-slate-50"
-								}`
-							}
-						>
-							About
-						</NavLink>
 					</nav>
 
 					{/* RIGHT: Auth + Mobile */}
@@ -149,21 +147,7 @@ export default function Navbar() {
 							)}
 						</button>
 
-						{!authenticated ? (
-							<button
-								onClick={() => navigate("/signin")}
-								className="hidden sm:inline-flex px-3 py-2 rounded border text-sm hover:bg-slate-50"
-							>
-								Login
-							</button>
-						) : (
-							<button
-								onClick={logout}
-								className="hidden sm:inline-flex px-3 py-2 rounded border text-sm hover:bg-slate-50"
-							>
-								Logout
-							</button>
-						)}
+						<div className="hidden sm:inline-flex">{authButton}</div>
 					</div>
 				</div>
 
@@ -171,61 +155,31 @@ export default function Navbar() {
 				{mobileOpen && (
 					<div className="md:hidden border-t bg-white">
 						<div className="max-w-6xl mx-auto px-4 py-3 grid gap-1">
-							<NavItem to="/" onClick={closeMobile}>
-								Home
-							</NavItem>
-
-							<button
-								onClick={() => {
-									closeMobile();
-									setOpenCalc(true);
-								}}
-								className={`text-left text-sm font-medium px-2 py-2 rounded ${
-									isCalculateActive
-										? "text-brand-700 bg-brand-50"
-										: "text-slate-700 hover:text-brand-700 hover:bg-slate-50"
-								}`}
-							>
-								Calculate
-							</button>
-
-							{authenticated && (
-								<NavItem to="/history" onClick={closeMobile}>
-									History
-								</NavItem>
+							{filteredNavItems.map((item, idx) =>
+								item.path ? (
+									<NavItem key={idx} to={item.path} onClick={closeMobile}>
+										{item.label}
+									</NavItem>
+								) : (
+									<NavItem
+										key={idx}
+										onClick={() => {
+											closeMobile();
+											item.action?.();
+										}}
+										className={`w-full text-left ${
+											item.isCalculate && isCalculateActive
+												? "text-brand-700 bg-brand-50"
+												: ""
+										}`}
+									>
+										{item.label}
+									</NavItem>
+								),
 							)}
 
-							<NavItem to="/taxguide" onClick={closeMobile}>
-								Tax Guides
-							</NavItem>
-
-							<NavItem to="/about" onClick={closeMobile}>
-								About
-							</NavItem>
-
-							<div className="pt-2 border-t mt-2">
-								{!authenticated ? (
-									<button
-										onClick={() => {
-											closeMobile();
-											navigate("/signin");
-										}}
-										className="w-full px-3 py-2 rounded border text-sm hover:bg-slate-50"
-									>
-										Login
-									</button>
-								) : (
-									<button
-										onClick={() => {
-											closeMobile();
-											logout();
-										}}
-										className="w-full px-3 py-2 rounded border text-sm hover:bg-slate-50"
-									>
-										Logout
-									</button>
-								)}
-							</div>
+							{/* Mobile auth button */}
+							<div className="pt-2 border-t mt-2">{authButton}</div>
 						</div>
 					</div>
 				)}

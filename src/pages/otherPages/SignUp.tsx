@@ -14,7 +14,7 @@ import PasswordHelper from "../../components/ui/inputs/PasswordHelper";
 
 // -------------------------------- SIGN UP COMPONENT --------------------------------
 export default function SignUp() {
-	const { signup } = useAuth(); // ✅ use auth context for signup
+	const { signup } = useAuth(); 
 	const navigate = useNavigate();
 	const location = useLocation();
 

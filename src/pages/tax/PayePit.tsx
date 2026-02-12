@@ -18,7 +18,7 @@ import {
 	onlyNumbers,
 } from "../../utils/numberInput";
 import type { ApiResponse } from "../../api/api.types";
-import type { PayePitResponse } from "../../types/payePit";
+import type { PayePitResponse } from "../../types/tax/payePit";
 
 // -----------------------------------------------------------
 export default function PayePit() {

@@ -125,18 +125,16 @@ export default function VerifyEmail() {
 				return;
 			}
 
-			// ✅ Auto-refresh user after verification
+			// Auto-refresh user after verification
 			await auth.refresh();
 
+			// ✅ Show success message
 			setInfo(data.message || "Email verified successfully! Redirecting...");
 
-			// Redirect automatically when user is loaded
-			const redirectCheck = setInterval(() => {
-				if (auth.user) {
-					clearInterval(redirectCheck);
-					navigate("/calculate", { replace: true });
-				}
-			}, 100);
+			// ✅ Pause for 2 seconds before redirecting
+			setTimeout(() => {
+				navigate("/calculate", { replace: true });
+			}, 2000); // 2000ms = 2 seconds
 		} catch (e: unknown) {
 			setError(getErrorMessage(e));
 		} finally {
@@ -263,15 +261,7 @@ export default function VerifyEmail() {
 								: "Resend code"}
 					</button>
 
-					<div className="mt-4 text-xs text-slate-600 text-center">
-						Already verified?{" "}
-						<Link
-							className="text-brand-800 font-semibold hover:text-brand-900"
-							to="/signin"
-						>
-							Sign in
-						</Link>
-					</div>
+					{/* ------------------- SMALL INPRINT MESSAGE AT THE BOTTOM------------------- */}
 					<div className="mt-2 text-xs text-slate-600 text-center">
 						Wrong email?{" "}
 						<Link

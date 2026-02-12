@@ -1,4 +1,4 @@
-// taxlator/src/state/useAuth.ts
+// src/state/useAuth.ts
 
 // --------------------------------------
 import { useContext } from "react";

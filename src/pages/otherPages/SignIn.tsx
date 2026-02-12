@@ -22,7 +22,7 @@ type SigninResponse = {
 
 // ------------------------------------- SIGN IN COMPONENT -------------------------------------
 export default function SignIn() {
-	const { user, refresh } = useAuth(); // ✅ access auth context
+	const { user, refresh } = useAuth();
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -63,10 +63,8 @@ export default function SignIn() {
 				return;
 			}
 
-			// ✅ Refresh auth context: loads current user from cookie
+			// refresh user data in context and redirect to dashboard
 			await refresh();
-
-			// ✅ Redirect to dashboard after successful login
 			navigate("/dashboard", { replace: true });
 		} catch (err: unknown) {
 			if (err instanceof AxiosError) {

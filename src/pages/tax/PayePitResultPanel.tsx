@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { formatCurrency } from "../../utils/formatCurrency";
-import type { PayePitResponse, PayePitBand } from "../../types/payePit";
+import type { PayePitResponse, PayePitBand } from "../../types/tax/payePit";
 import GuestCTA from "../../components/ui/resultPanel/GuestCTA";
 import ResultPanelButton from "../../components/ui/buttons/ResultPanelButton";
 
