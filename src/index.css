@@ -1,16 +1,28 @@
 /* ./src/index.css */
 
 /* ================= TAILWIND DIRECTIVES ================= */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ================= GLOBAL RESET ================= */
 
-*,
-*::before,
-*::after {
-	box-sizing: border-box;
+@layer base {
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+		outline: none;
+		user-select: none;
+	}
+	html {
+		font-size: 16px;
+	}
+
+	body {
+		width: 100dvw;
+	}
 }
 
 /* ================= ROOT ================= */

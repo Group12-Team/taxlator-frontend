@@ -1,13 +1,28 @@
 // src/utils/formatCurrency.ts
-
 // -----------------------------------------------------------
-export function formatCurrency(amount: number): string {
-	if (!Number.isFinite(amount)) return "₦0.00";
 
-	return new Intl.NumberFormat("en-NG", {
+type FormatCurrencyOptions = {
+	currency?: "NGN" | string;
+	locale?: string;
+	decimals?: number;
+	fallback?: string;
+};
+
+export function formatCurrency(
+	amount: number,
+	{
+		currency = "NGN",
+		locale = "en-NG",
+		decimals = 0,
+		fallback = "₦0",
+	}: FormatCurrencyOptions = {},
+): string {
+	if (!Number.isFinite(amount)) return fallback;
+
+	return new Intl.NumberFormat(locale, {
 		style: "currency",
-		currency: "NGN",
-		minimumFractionDigits: 2,
-		maximumFractionDigits: 2,
+		currency,
+		minimumFractionDigits: decimals,
+		maximumFractionDigits: decimals,
 	}).format(amount);
 }

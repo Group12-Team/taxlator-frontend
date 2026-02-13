@@ -1,26 +1,24 @@
 // src/pages/tax/FreeLancer.tsx
-
 // -----------------------------------------------------------
 import { useMemo, useState } from "react";
-import TaxPageLayout from "./TaxPageLayout";
-import { api } from "../../api/client";
+import TaxPageLayout from "../../pages/tax/TaxPageLayout";
+import { api, API_BASE } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
 import { useHistory } from "../../state/history";
-import type {
-	FreelancerCalculatePayload,
-	FreelancerResult,
-} from "../../api/tax.types";
 import { useAuth } from "../../state/useAuth";
 import FreelancerResultPanel from "./FreelancerResultPanel";
+import CalculateButton from "../../components/ui/buttons/CalculateButton";
+import CurrencyInput from "../../components/ui/inputs/CurrencyInput";
 import {
 	parseNumber,
 	formatNumber,
 	onlyNumbers,
 } from "../../utils/numberInput";
 import type { ApiResponse } from "../../api/api.types";
-import CalculateButton from "../../components/ui/buttons/CalculateButton";
-import CurrencyInput from "../../components/ui/inputs/CurrencyInput";
+import type { FreelancerResponse } from "../../types/tax/freelancer";
 
+// -----------------------------------------------------------
+// Component
 // -----------------------------------------------------------
 export default function FreeLancer() {
 	const { authenticated } = useAuth();
@@ -35,59 +33,87 @@ export default function FreeLancer() {
 	// --------------------------- request state ---------------------------
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
-	const [result, setResult] = useState<ApiResponse<FreelancerResult> | null>(
-		null,
-	);
+	const [result, setResult] = useState<FreelancerResponse | null>(null);
 
 	// --------------------------- derived numbers ---------------------------
 	const grossAnnualIncomeNumber = useMemo(
 		() => parseNumber(grossAnnualIncome),
 		[grossAnnualIncome],
 	);
+
 	const pensionContributionNumber = useMemo(
 		() => parseNumber(pensionContribution),
 		[pensionContribution],
 	);
+
 	const totalBusinessExpensesNumber = useMemo(
 		() => parseNumber(totalBusinessExpenses),
 		[totalBusinessExpenses],
 	);
 
-	// --------------------------- validation ---------------------------
 	const isCalculationValid = grossAnnualIncomeNumber > 0 && !busy;
 
 	// --------------------------- calculation ---------------------------
 	async function calculate() {
 		setError("");
+
+		if (grossAnnualIncomeNumber <= 0) {
+			setError("Gross annual income must be greater than 0");
+			return;
+		}
+
 		setBusy(true);
 
 		try {
-			const payload: FreelancerCalculatePayload = {
+			// ------------------- Prepare payload -------------------
+			const payload = {
 				taxType: "FREELANCER",
 				grossAnnualIncome: grossAnnualIncomeNumber,
-				freelancerPensionContribution: pensionContributionNumber,
+				pensionContribution: pensionContributionNumber,
 				totalBusinessExpenses: includeExpenses
 					? totalBusinessExpensesNumber
 					: 0,
 			};
 
-			const { data } = await api.post<ApiResponse<FreelancerResult>>(
+			// ------------------- DEV logging -------------------
+			if (import.meta.env.DEV) {
+				console.log("=== Frontend Freelancer API Call ===");
+				console.log("Payload:", payload);
+				console.log(
+					"Full URL:",
+					API_BASE + ENDPOINTS.taxCalculate("freelancer"),
+				);
+			}
+
+			// ------------------- Call API -------------------
+			const response = await api.post<ApiResponse<FreelancerResponse>>(
 				ENDPOINTS.taxCalculate("freelancer"),
 				payload,
 			);
 
-			setResult(data); // store API response (success or failure)
-
-			if (!data.success) {
-				setError(data.message || data.error || "Freelancer calculation failed");
+			if (!response.data.success) {
+				setError(response.data.message || "Calculation failed");
 				return;
 			}
 
-			addHistory({
-				type: "FREELANCER",
-				input: payload,
-				result: data.data,
-			});
+			const dto = response.data.data;
+
+			// -------------------- DEV logging for dto -------------------
+			if (import.meta.env.DEV) {
+				console.log("=== Frontend API DTO (RAW) ===");
+				console.log(JSON.stringify(dto, null, 2));
+			}
+
+			setResult(dto);
+
+			// ------------------- Save history (auth only) -------------------
+			if (authenticated) {
+				await addHistory({
+					type: "FREELANCER",
+					input: payload,
+					result: dto,
+				});
+			}
 		} catch (err: unknown) {
 			const e = err as {
 				response?: { data?: { message?: string; error?: string } };
@@ -95,7 +121,6 @@ export default function FreeLancer() {
 			};
 			setError(
 				e.response?.data?.message ||
-					e.response?.data?.error ||
 					e.message ||
 					"Freelancer calculation failed",
 			);
@@ -104,6 +129,7 @@ export default function FreeLancer() {
 		}
 	}
 
+	// ---------------------------------------------------- RENDER
 	return (
 		<TaxPageLayout
 			title="Freelancer / Self-Employed Tax"
@@ -111,9 +137,9 @@ export default function FreeLancer() {
 			rightPanel={
 				result ? (
 					<FreelancerResultPanel
-						result={result}
-						grossAnnualIncome={grossAnnualIncomeNumber}
+						backendResult={result}
 						isAuthenticated={authenticated}
+						prefillEmail=""
 					/>
 				) : null
 			}
@@ -126,7 +152,11 @@ export default function FreeLancer() {
 
 			<CurrencyInput
 				id="grossAnnualIncome"
-				label="Gross Annual Income"
+				label={
+					<span>
+						Gross Annual Income <span className="text-red-500">*</span>
+					</span>
+				}
 				value={formatNumber(grossAnnualIncome)}
 				onChange={(v) => setGrossAnnualIncome(onlyNumbers(v))}
 			/>
@@ -136,9 +166,10 @@ export default function FreeLancer() {
 				label="Pension Contribution"
 				value={formatNumber(pensionContribution)}
 				onChange={(v) => setPensionContribution(onlyNumbers(v))}
+				containerClassName="my-3"
 			/>
 
-			<div className="mt-3 rounded-xl border p-4 bg-white">
+			<div className="mt-5 rounded-xl border p-4 bg-white">
 				<div className="flex items-start justify-between gap-3">
 					<div>
 						<div className="font-medium text-xs text-slate-600">
@@ -168,7 +199,6 @@ export default function FreeLancer() {
 				)}
 			</div>
 
-			{/* Proceed/calculate button */}
 			<CalculateButton
 				onClick={calculate}
 				loading={busy}

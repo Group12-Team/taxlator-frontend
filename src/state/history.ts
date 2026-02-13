@@ -3,28 +3,26 @@
 
 import { api } from "../api/client";
 import { useAuth } from "./useAuth";
-import type { HistoryType, HistoryResult } from "../types/history.type";
+import type { HistoryResult } from "../types/history.type";
 
-interface AddHistoryPayload {
-	type: HistoryType;
+type AddHistoryPayload = {
 	input: unknown;
-	result: HistoryResult;
-}
+} & HistoryResult;
 
 /**
- * Hooked version of addHistory that automatically uses the current user.
- * Skips if the user is not authenticated.
+ * Automatically records calculation history for authenticated users.
+ * Strongly typed so result must match the calculation type.
  */
 export function useHistory() {
 	const { authenticated } = useAuth();
 
 	async function addHistory(payload: AddHistoryPayload) {
-		if (!authenticated) return; // skip for public users
+		if (!authenticated) return; // 
 
 		try {
 			await api.post("/history", payload);
 		} catch {
-			// silent fail – history should never break calculation UX
+			// History must NEVER break UX
 		}
 	}
 

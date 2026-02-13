@@ -25,22 +25,19 @@ export default function PayePit() {
 	const { authenticated } = useAuth();
 	const { addHistory } = useHistory();
 
-	// form state
-	// ---------------------------
+	// --------------------------- form state ---------------------------
 	const [grossAnnualIncome, setGrossAnnualIncome] = useState("");
 	const [includeNhf, setIncludeNhf] = useState(false);
 	const [includeNhis, setIncludeNhis] = useState(false);
 	const [annualRent, setAnnualRent] = useState("");
 	const [otherDeductions, setOtherDeductions] = useState("");
 
-	// request state
-	// ---------------------------
+	// --------------------------- request state ---------------------------
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 	const [result, setResult] = useState<PayePitResponse | null>(null);
 
-	// derived numeric values
-	// ---------------------------
+	// --------------------------- derived numeric values ---------------------------
 	const grossAnnualIncomeNumber = useMemo(
 		() => parseNumber(grossAnnualIncome),
 		[grossAnnualIncome],
@@ -53,11 +50,10 @@ export default function PayePit() {
 		[otherDeductions],
 	);
 
-	// validation
-	// ---------------------------
+	// --------------------------- validation ---------------------------
 	const isCalculationValid = grossAnnualIncomeNumber > 0 && !busy;
 
-	// --------------------------- CALCULATE ---------------------------
+	// --------------------------- calculation ---------------------------
 	async function calculate() {
 		setError("");
 
@@ -69,6 +65,7 @@ export default function PayePit() {
 		setBusy(true);
 
 		try {
+			// ------------------- Prepare payload -------------------
 			const payload = {
 				taxType: "PAYE/PIT",
 				grossAnnualIncome: grossAnnualIncomeNumber,
@@ -79,10 +76,14 @@ export default function PayePit() {
 				otherDeductions: otherDeductionsNumber,
 			};
 
-			console.log("=== Frontend PAYE/PIT API Call ===");
-			console.log("Payload sent:", payload);
-			console.log("Full URL:", API_BASE + ENDPOINTS.taxCalculate("payePit"));
+			// ------------------- DEV logging -------------------
+			if (import.meta.env.DEV) {
+				console.log("=== Frontend PAYE/PIT API Call ===");
+				console.log("Payload sent:", payload);
+				console.log("Full URL:", API_BASE + ENDPOINTS.taxCalculate("payePit"));
+			}
 
+			// ------------------- Call API -------------------
 			const response = await api.post<ApiResponse<PayePitResponse>>(
 				ENDPOINTS.taxCalculate("payePit"),
 				payload,
@@ -95,11 +96,15 @@ export default function PayePit() {
 
 			const dto = response.data.data;
 
-			console.log("=== Frontend API DTO (RAW) ===");
-			console.log(dto);
+			// -------------------- DEV logging for dto -------------------
+			if (import.meta.env.DEV) {
+				console.log("=== Frontend API DTO (RAW) ===");
+				console.log(JSON.stringify(dto, null, 2));
+			}
 
 			setResult(dto);
 
+			// ------------------- Save history (auth only) -------------------
 			if (authenticated) {
 				await addHistory({
 					type: "PAYE/PIT",
@@ -112,7 +117,6 @@ export default function PayePit() {
 				response?: { data?: { message?: string } };
 				message?: string;
 			};
-
 			setError(
 				e.response?.data?.message || e.message || "PAYE/PIT calculation failed",
 			);
@@ -121,7 +125,7 @@ export default function PayePit() {
 		}
 	}
 
-	// ---------------------------------------------------- RENDER
+	// --------------------------- RENDER ---------------------------
 	return (
 		<TaxPageLayout
 			title="PAYE / PIT Calculator"

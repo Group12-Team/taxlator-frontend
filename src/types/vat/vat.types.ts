@@ -1,29 +1,28 @@
-// src/api/vat.types.ts
+// src/types/vat.ts
 // -----------------------------------------------------------
 
-// ------------------------------ VAT ------------------------------
-export type VatCalculationType = "add" | "remove";
+// ==================== VAT RESPONSE ====================
+export interface VatResponse {
+	taxType: string;
+	country: string;
 
-export type VatTransactionType =
-	| "Domestic sale/Purchase"
-	| "Export/International"
-	| "Digital Services"
-	| "Exempt Items";
-
-export interface VatCalculatePayload {
+	// ================= RAW NUMERIC VALUES =================
 	transactionAmount: number;
-	calculationType: VatCalculationType;
-	transactionType: VatTransactionType;
-}
-
-// ------------------------------- VAT RESULT ------------------------------
-export interface VatResult {
-	transactionAmount: number;
+	baseAmount: number;
+	vatRate: number;
 	vatAmount: number;
 	totalAmount: number;
-	vatRate: number;
-	calculationType: VatCalculationType;
-	transactionType: VatTransactionType;
-	customer?: string;
-	invoiceNumber?: string;
+
+	// ================= FORMATTED VALUES =================
+	transactionAmountFormatted: string;
+	baseAmountFormatted: string;
+	vatAmountFormatted: string;
+	totalAmountFormatted: string;
+	vatRateFormatted: string;
+
+	// ================= METADATA =================
+	transactionType: string;
+	calculationType: string;
+	customer: string | null;
+	invoiceNumber: string | null;
 }

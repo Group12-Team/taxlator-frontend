@@ -3,10 +3,7 @@
 // --------------------------------------------------
 import type { HistoryItemDTO } from "../types/history.type";
 
-/**
- * API response returned by GET /history
- * Mirrors backend pagination structure.
- */
+// -------------------------------- GET HISTORY RESPONSE --------------------------------
 export interface GetHistoryResponse {
 	items: HistoryItemDTO[];
 	nextCursor: string | null;

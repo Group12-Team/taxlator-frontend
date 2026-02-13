@@ -5,6 +5,7 @@ import type { PayePitResponse, PayePitBand } from "../../types/tax/payePit";
 import GuestCTA from "../../components/ui/resultPanel/GuestCTA";
 import ResultPanelButton from "../../components/ui/buttons/ResultPanelButton";
 
+// ============================== PAYE/PIT RESULT PANEL ==============================
 type Props = {
 	backendResult: PayePitResponse;
 	isAuthenticated: boolean;
@@ -67,15 +68,15 @@ export default function PayePitResultPanel({
 			{/* ====================== BREAKDOWN TOGGLE ===================== */}
 			<button
 				onClick={() => setOpen((s) => !s)}
-				className="mt-5 w-full flex justify-between rounded-2xl bg-[#f0f7ff] border border-brand-200 p-4 text-sm font-semibold"
+				className="w-full mt-5 flex justify-between items-center rounded-2xl bg-[#f0f7ff] border border-brand-200 p-4 text-sm font-semibold"
 			>
 				<span>View Tax Breakdown</span>
-				<span>{open ? "▴" : "▾"}</span>
+				<span className="text-xl">{open ? "▴" : "▾"}</span>
 			</button>
 
 			{/* ====================== BREAKDOWN ===================== */}
 			{open && (
-				<div className="mt-4 rounded-2xl border border-brand-200 bg-[#f0f7ff] p-4">
+				<div className="w-full mt-4 rounded-2xl border border-brand-200 bg-[#f0f7ff] p-4">
 					<div className="text-sm font-semibold text-slate-600 mb-4">
 						Tax Calculation Breakdown
 					</div>
@@ -91,7 +92,7 @@ export default function PayePitResultPanel({
 									key={label}
 									className="flex justify-between text-xs font-light mb-2"
 								>
-									<span className="w-[60%] break-words leading-snug">
+									<span className="w-[50%] break-words leading-snug">
 										{deductionLabels[label] || label}
 									</span>
 									<span className="w-[50%] text-right tabular-nums">
@@ -107,14 +108,14 @@ export default function PayePitResultPanel({
 					{/* ====================== TOTALS ===================== */}
 					<div className="mb-4">
 						<div className="flex justify-between text-xs font-medium mb-2">
-							<span className="w-[55%]">Total Deductions</span>
-							<span className="text-right tabular-nums">
+							<span className="w-[50%]">Total Deductions</span>
+							<span className="w-[50%] text-right tabular-nums">
 								{formatCurrency(totals.totalDeductions)}
 							</span>
 						</div>
 						<div className="flex justify-between text-xs font-medium">
-							<span className="w-[70%]">Taxable Income</span>
-							<span className="text-right tabular-nums">
+							<span className="w-[50%]">Taxable Income</span>
+							<span className="w-[50%] text-right tabular-nums">
 								{formatCurrency(totals.taxableIncome)}
 							</span>
 						</div>
@@ -125,7 +126,7 @@ export default function PayePitResultPanel({
 					{/* ====================== FULL TAX BANDS ===================== */}
 					{progressive.fullBands && progressive.fullBands.length > 0 && (
 						<div className="mb-4">
-							<div className="w-[55%] text-sm font-medium mb-3">
+							<div className="w-[50%] text-sm font-medium mb-3">
 								Progressive Tax Bands (Annual)
 							</div>
 							{progressive.fullBands.map((band: PayePitBand, idx: number) => (
@@ -133,10 +134,10 @@ export default function PayePitResultPanel({
 									key={idx}
 									className="flex justify-between text-xs font-light mb-2"
 								>
-									<span className="w-[55%] break-words leading-snug">
+									<span className="w-[50%] break-words leading-snug">
 										{band.label} ({(band.rate * 100).toFixed(0)}%)
 									</span>
-									<span className="w-[45%] text-right tabular-nums">
+									<span className="w-[50%] text-right tabular-nums">
 										{band.maxLimit !== undefined
 											? formatCurrency(band.maxLimit)
 											: "-"}
@@ -159,10 +160,10 @@ export default function PayePitResultPanel({
 								key={idx}
 								className="flex justify-between text-xs font-light mb-2"
 							>
-								<span className="w-[70%] break-words leading-snug">
+								<span className="w-[50%] break-words leading-snug">
 									{band.label} ({band.rateFormatted})
 								</span>
-								<span className="text-right tabular-nums">
+								<span className="w-[50%] text-right tabular-nums">
 									{formatCurrency(band.tax)}
 								</span>
 							</div>
@@ -172,14 +173,14 @@ export default function PayePitResultPanel({
 
 						{/* ====================== CURRENT TAX BREAKDOWN ===================== */}
 						<div className="flex justify-between text-xs font-medium mt-2">
-							<span className="w-[70%]">Total Annual Tax</span>
-							<span className="text-right tabular-nums">
+							<span className="w-[50%]">Total Annual Tax</span>
+							<span className="w-[50%] text-right tabular-nums">
 								{formatCurrency(progressive.totalAnnualTax)}
 							</span>
 						</div>
 						<div className="flex justify-between text-xs mt-2 font-medium">
-							<span className="w-[70%]">Monthly Tax</span>
-							<span className="text-right tabular-nums">
+							<span className="w-[50%]">Monthly Tax</span>
+							<span className="w-[50%] text-right tabular-nums">
 								{formatCurrency(progressive.monthlyTax)}
 							</span>
 						</div>
