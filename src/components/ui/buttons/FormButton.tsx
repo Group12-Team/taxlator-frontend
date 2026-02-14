@@ -1,9 +1,13 @@
+// ====================================
 // src/components/ui/buttons/CalculateButton.tsx
+// ====================================
 
-// -----------------------------------------------------------
+// ====================================
 import React from "react";
 import clsx from "clsx";
+// ====================================
 
+// ==================================== FORM BUTTON COMPONENT ====================================
 type FormButtonProps = {
 	children: React.ReactNode;
 	enabled: boolean;
@@ -11,7 +15,7 @@ type FormButtonProps = {
 	className?: string;
 };
 
-// -----------------------------------------------------------
+// ====================================
 export default function FormButton({
 	children,
 	enabled,

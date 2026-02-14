@@ -1,5 +1,8 @@
+// ====================================
 // src/pages/tax/FreeLancer.tsx
-// -----------------------------------------------------------
+// ====================================
+
+// ====================================
 import { useMemo, useState } from "react";
 import TaxPageLayout from "../../pages/tax/TaxPageLayout";
 import { api, API_BASE } from "../../api/client";
@@ -16,26 +19,28 @@ import {
 } from "../../utils/numberInput";
 import type { ApiResponse } from "../../api/api.types";
 import type { FreelancerResponse } from "../../types/tax/freelancer";
+import { getErrorMessage } from "../../api/getErrorMessage";
+import { isFreelancerCalculationValid } from "../../utils/calculateButtonValidation";
 
-// -----------------------------------------------------------
-// Component
-// -----------------------------------------------------------
+// ====================================
+
+// ==================================== FREELANCER UI PAGE ====================================
 export default function FreeLancer() {
 	const { authenticated } = useAuth();
 	const { addHistory } = useHistory();
 
-	// --------------------------- form state ---------------------------
+	// ==================================== form state
 	const [grossAnnualIncome, setGrossAnnualIncome] = useState("");
 	const [pensionContribution, setPensionContribution] = useState("");
 	const [includeExpenses, setIncludeExpenses] = useState(false);
 	const [totalBusinessExpenses, setTotalBusinessExpenses] = useState("");
 
-	// --------------------------- request state ---------------------------
+	// ==================================== request state
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 	const [result, setResult] = useState<FreelancerResponse | null>(null);
 
-	// --------------------------- derived numbers ---------------------------
+	// ==================================== derived numbers
 	const grossAnnualIncomeNumber = useMemo(
 		() => parseNumber(grossAnnualIncome),
 		[grossAnnualIncome],
@@ -51,9 +56,7 @@ export default function FreeLancer() {
 		[totalBusinessExpenses],
 	);
 
-	const isCalculationValid = grossAnnualIncomeNumber > 0 && !busy;
-
-	// --------------------------- calculation ---------------------------
+	// ==================================== calculation
 	async function calculate() {
 		setError("");
 
@@ -65,7 +68,7 @@ export default function FreeLancer() {
 		setBusy(true);
 
 		try {
-			// ------------------- Prepare payload -------------------
+			// ==================================== Payload construction
 			const payload = {
 				taxType: "FREELANCER",
 				grossAnnualIncome: grossAnnualIncomeNumber,
@@ -75,7 +78,7 @@ export default function FreeLancer() {
 					: 0,
 			};
 
-			// ------------------- DEV logging -------------------
+			// ==================================== DEV logging for payload
 			if (import.meta.env.DEV) {
 				console.log("=== Frontend Freelancer API Call ===");
 				console.log("Payload:", payload);
@@ -85,7 +88,7 @@ export default function FreeLancer() {
 				);
 			}
 
-			// ------------------- Call API -------------------
+			// ==================================== API call
 			const response = await api.post<ApiResponse<FreelancerResponse>>(
 				ENDPOINTS.taxCalculate("freelancer"),
 				payload,
@@ -98,15 +101,9 @@ export default function FreeLancer() {
 
 			const dto = response.data.data;
 
-			// -------------------- DEV logging for dto -------------------
-			if (import.meta.env.DEV) {
-				console.log("=== Frontend API DTO (RAW) ===");
-				console.log(JSON.stringify(dto, null, 2));
-			}
-
 			setResult(dto);
 
-			// ------------------- Save history (auth only) -------------------
+			// ==================================== Authenticated user history logging
 			if (authenticated) {
 				await addHistory({
 					type: "FREELANCER",
@@ -115,21 +112,13 @@ export default function FreeLancer() {
 				});
 			}
 		} catch (err: unknown) {
-			const e = err as {
-				response?: { data?: { message?: string; error?: string } };
-				message?: string;
-			};
-			setError(
-				e.response?.data?.message ||
-					e.message ||
-					"Freelancer calculation failed",
-			);
+			setError(getErrorMessage(err, "Freelancer calculation failed"));
 		} finally {
 			setBusy(false);
 		}
 	}
 
-	// ---------------------------------------------------- RENDER
+	// ==================================== Render
 	return (
 		<TaxPageLayout
 			title="Freelancer / Self-Employed Tax"
@@ -180,6 +169,7 @@ export default function FreeLancer() {
 						</div>
 					</div>
 
+					{/*============================  TRIGGER ========================== */}
 					<input
 						type="checkbox"
 						className="h-4 w-4 mt-2 accent-brand-800 cursor-pointer"
@@ -202,7 +192,10 @@ export default function FreeLancer() {
 			<CalculateButton
 				onClick={calculate}
 				loading={busy}
-				enabled={isCalculationValid}
+				enabled={isFreelancerCalculationValid({
+					grossAnnualIncomeNumber,
+					busy,
+				})}
 			/>
 		</TaxPageLayout>
 	);

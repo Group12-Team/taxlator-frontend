@@ -1,9 +1,15 @@
+// ====================================
+// src/pages/tax/PayePitResultPanel.tsx
+// ====================================
+
+// ====================================
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { formatCurrency } from "../../utils/formatCurrency";
 import type { PayePitResponse, PayePitBand } from "../../types/tax/payePit";
 import GuestCTA from "../../components/ui/resultPanel/GuestCTA";
 import ResultPanelButton from "../../components/ui/buttons/ResultPanelButton";
+// ====================================
 
 // ============================== PAYE/PIT RESULT PANEL ==============================
 type Props = {
@@ -12,6 +18,7 @@ type Props = {
 	prefillEmail?: string;
 };
 
+// ====================================
 export default function PayePitResultPanel({
 	backendResult,
 	isAuthenticated,
@@ -21,10 +28,12 @@ export default function PayePitResultPanel({
 	const [open, setOpen] = useState(false);
 
 	if (!backendResult) return null;
+	// ====================================
 
 	const { summary, standardDeductions, totals, progressive, taxType, country } =
 		backendResult;
 
+	// ====================== FULL LABELS ======================
 	const deductionLabels: Record<string, string> = {
 		rentRelief: "Rent Relief",
 		pension: "Pension Contribution",
@@ -33,6 +42,7 @@ export default function PayePitResultPanel({
 		otherDeductions: "Other Deductions",
 	};
 
+	// ==================================== RENDER ====================================
 	return (
 		<div className="w-full">
 			{/* ====================== HEADER ===================== */}
@@ -47,6 +57,8 @@ export default function PayePitResultPanel({
 				</div>
 				<div className="text-sm text-slate-600 mt-1">Total Annual Tax Due</div>
 			</div>
+			{/* ================================================================== */}
+
 			<hr className="my-2 border-brand-200" />
 
 			{/* ====================== SUMMARY ===================== */}
@@ -80,6 +92,7 @@ export default function PayePitResultPanel({
 					<div className="text-sm font-semibold text-slate-600 mb-4">
 						Tax Calculation Breakdown
 					</div>
+					{/* ================================================================== */}
 
 					<hr className="my-4 border-brand-200" />
 
@@ -87,6 +100,7 @@ export default function PayePitResultPanel({
 					{standardDeductions && Object.keys(standardDeductions).length > 0 && (
 						<div className="mb-4">
 							<div className="text-sm font-medium mb-3">Deductions</div>
+
 							{Object.entries(standardDeductions).map(([label, value]) => (
 								<div
 									key={label}
@@ -102,6 +116,7 @@ export default function PayePitResultPanel({
 							))}
 						</div>
 					)}
+					{/* ================================================================== */}
 
 					<hr className="my-4 border-brand-200" />
 
@@ -120,6 +135,7 @@ export default function PayePitResultPanel({
 							</span>
 						</div>
 					</div>
+					{/* ================================================================== */}
 
 					<hr className="my-4 border-brand-200" />
 
@@ -146,6 +162,7 @@ export default function PayePitResultPanel({
 							))}
 						</div>
 					)}
+					{/* ================================================================== */}
 
 					<hr className="my-4 border-brand-200" />
 
@@ -168,6 +185,7 @@ export default function PayePitResultPanel({
 								</span>
 							</div>
 						))}
+						{/* ================================================================== */}
 
 						<hr className="my-4 border-brand-200" />
 
@@ -194,6 +212,7 @@ export default function PayePitResultPanel({
 					Calculate Another Tax
 				</ResultPanelButton>
 
+				{/*====================== GUEST CTA========================  */}
 				{!isAuthenticated && <GuestCTA prefillEmail={prefillEmail} />}
 			</div>
 		</div>

@@ -1,29 +1,36 @@
+// ====================================
 // src/pages/tax/Cit.tsx
+// ====================================
 
-// -----------------------------------------------------------
+// ====================================
 import { useMemo, useState, useEffect } from "react";
 import TaxPageLayout from "./TaxPageLayout";
-import { api } from "../../api/client";
+import { api, API_BASE } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
 import { useHistory } from "../../state/history";
 import { useAuth } from "../../state/useAuth";
-import type { CitCalculatePayload, CitResult } from "../../api/tax.types";
+import type { CitResponse } from "../../types/tax/cit";
 import CitResultPanel from "./CitResultPanel";
 import CurrencyInput from "../../components/ui/inputs/CurrencyInput";
 import CalculateButton from "../../components/ui/buttons/CalculateButton";
-import CompanySizeSelect from "../../components/ui/inputs/CompanySizeSelect";
+import CompanySizeSelect from "../../components/ui/buttons/CompanySizeSelect";
 import {
 	parseNumber,
 	formatNumber,
 	onlyNumbers,
 } from "../../utils/numberInput";
 import type { ApiResponse } from "../../api/api.types";
+import { getErrorMessage } from "../../api/getErrorMessage";
+import { isCitCalculationValid } from "../../utils/calculateButtonValidation";
 
-// ---------------------------------------- CIT CALCULATOR PAGE --------------------------------
+// ====================================
+
+// ==================================== CIT UI PAGE =================================
 export default function CIT() {
 	const { authenticated } = useAuth();
 	const { addHistory } = useHistory();
 
+	// ==================================== Form state
 	const [annualTurnover, setAnnualTurnover] = useState("");
 	const [fixedAssets, setFixedAssets] = useState("");
 	const [taxableProfit, setTaxableProfit] = useState("");
@@ -32,10 +39,12 @@ export default function CIT() {
 	>("");
 	const [accountingProfit, setAccountingProfit] = useState("");
 
+	// ==================================== Request state
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
-	const [result, setResult] = useState<CitResult | null>(null);
+	const [result, setResult] = useState<CitResponse | null>(null);
 
+	// ==================================== Derived numbers
 	const annualTurnoverNumber = useMemo(
 		() => parseNumber(annualTurnover),
 		[annualTurnover],
@@ -53,17 +62,12 @@ export default function CIT() {
 		[accountingProfit],
 	);
 
-	const isCalculationValid =
-		annualTurnoverNumber > 0 &&
-		fixedAssetsNumber >= 0 &&
-		taxableProfitNumber > 0 &&
-		(companySize !== "Multinational" || accountingProfitNumber > 0) &&
-		!busy;
-
+	// ==================================== Clear accounting profit if company size is not multinational
 	useEffect(() => {
 		if (companySize !== "Multinational") setAccountingProfit("");
 	}, [companySize]);
 
+	// ==================================== Calculation
 	async function calculate() {
 		if (!companySize || annualTurnoverNumber <= 0) return;
 
@@ -71,48 +75,67 @@ export default function CIT() {
 		setBusy(true);
 
 		try {
-			const payload: CitCalculatePayload = {
+			// ==================================== Payload construction
+			const payload = {
 				taxType: "CIT",
 				annualTurnover: annualTurnoverNumber,
 				fixedAssets: fixedAssetsNumber,
 				taxableProfit: taxableProfitNumber,
-				companySize,
+				isMultinational: companySize === "Multinational",
 				accountingProfit:
 					companySize === "Multinational" ? accountingProfitNumber : undefined,
 			};
 
-			const { data } = await api.post<ApiResponse<CitResult>>(
+			// ==================================== DEV logging for payload
+			if (import.meta.env.DEV) {
+				console.log("=== Frontend CIT API Call ===");
+				console.log("Payload sent:", payload);
+				console.log("Full URL:", API_BASE + ENDPOINTS.taxCalculate("cit"));
+			}
+
+			// ==================================== Api call
+			const response = await api.post<ApiResponse<CitResponse>>(
 				ENDPOINTS.taxCalculate("cit"),
 				payload,
 			);
 
-			if (!data.success) {
-				setError(data.message || data.error || "CIT calculation failed");
+			if (!response.data.success) {
+				setError(response.data.message || "Calculation failed");
 				return;
 			}
 
-			setResult(data.data);
+			const dto = response.data.data;
 
+			setResult(dto);
+
+			// ==================================== Authenticated user history logging
 			if (authenticated) {
-				addHistory({
+				await addHistory({
 					type: "CIT",
 					input: payload,
-					result: data.data,
+					result: dto,
 				});
 			}
+		} catch (err: unknown) {
+			setError(getErrorMessage(err, "CIT calculation failed"));
 		} finally {
 			setBusy(false);
 		}
 	}
 
+	// ==================================== Render
 	return (
 		<TaxPageLayout
 			title="Company Income Tax"
 			subtitle="Calculate company income tax based on Nigerian CIT rules."
 			rightPanel={
 				result ? (
-					<CitResultPanel result={result} isAuthenticated={authenticated} />
-				) : undefined
+					<CitResultPanel
+						backendResult={result}
+						isAuthenticated={authenticated}
+						prefillEmail=""
+					/>
+				) : null
 			}
 		>
 			{error && (
@@ -123,23 +146,37 @@ export default function CIT() {
 
 			<CurrencyInput
 				id="annual-turnover"
-				label="Annual Turnover"
+				label={
+					<span>
+						Annual turnover <span className="text-red-500">*</span>
+					</span>
+				}
 				value={formatNumber(annualTurnover)}
 				onChange={(v) => setAnnualTurnover(onlyNumbers(v))}
 			/>
 
 			<CurrencyInput
 				id="fixed-assets"
-				label="Fixed Assets"
+				label={
+					<span>
+						Fixed Assets <span className="text-red-500">*</span>
+					</span>
+				}
 				value={formatNumber(fixedAssets)}
 				onChange={(v) => setFixedAssets(onlyNumbers(v))}
+				containerClassName="my-3"
 			/>
 
 			<CurrencyInput
 				id="taxable-profit"
-				label="Taxable Profit"
+				label={
+					<span>
+						Taxable Profit <span className="text-red-500">*</span>
+					</span>
+				}
 				value={formatNumber(taxableProfit)}
 				onChange={(v) => setTaxableProfit(onlyNumbers(v))}
+				containerClassName="my-3"
 			/>
 
 			<CompanySizeSelect value={companySize} onChange={setCompanySize} />
@@ -147,16 +184,28 @@ export default function CIT() {
 			{companySize === "Multinational" && (
 				<CurrencyInput
 					id="accounting-profit"
-					label="Accounting Profit"
+					label={
+						<span>
+							Accounting Profit <span className="text-red-500">*</span>
+						</span>
+					}
 					value={formatNumber(accountingProfit)}
 					onChange={(v) => setAccountingProfit(onlyNumbers(v))}
+					containerClassName="my-3"
 				/>
 			)}
 
 			<CalculateButton
 				onClick={calculate}
 				loading={busy}
-				enabled={isCalculationValid}
+				enabled={isCitCalculationValid({
+					annualTurnoverNumber,
+					fixedAssetsNumber,
+					taxableProfitNumber,
+					accountingProfitNumber,
+					companySize,
+					busy: false,
+				})}
 			/>
 		</TaxPageLayout>
 	);

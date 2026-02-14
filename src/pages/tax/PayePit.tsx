@@ -1,8 +1,8 @@
+// ====================================
 // src/pages/tax/PayePit.tsx
-// -----------------------------------------------------------
+// ====================================
 
-// imports
-// -----------------------------------------------------------
+// ====================================
 import { useMemo, useState } from "react";
 import TaxPageLayout from "../../pages/tax/TaxPageLayout";
 import { api, API_BASE } from "../../api/client";
@@ -19,25 +19,28 @@ import {
 } from "../../utils/numberInput";
 import type { ApiResponse } from "../../api/api.types";
 import type { PayePitResponse } from "../../types/tax/payePit";
+import { getErrorMessage } from "../../api/getErrorMessage";
+import { isPayePitCalculationValid } from "../../utils/calculateButtonValidation";
+// ====================================
 
-// -----------------------------------------------------------
+// ==================================== PAYE/PIT UI PAGE =================================
 export default function PayePit() {
 	const { authenticated } = useAuth();
 	const { addHistory } = useHistory();
 
-	// --------------------------- form state ---------------------------
+	// ==================================== Form state
 	const [grossAnnualIncome, setGrossAnnualIncome] = useState("");
 	const [includeNhf, setIncludeNhf] = useState(false);
 	const [includeNhis, setIncludeNhis] = useState(false);
 	const [annualRent, setAnnualRent] = useState("");
 	const [otherDeductions, setOtherDeductions] = useState("");
 
-	// --------------------------- request state ---------------------------
+	// ==================================== Request state
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 	const [result, setResult] = useState<PayePitResponse | null>(null);
 
-	// --------------------------- derived numeric values ---------------------------
+	// ==================================== Derived numbers
 	const grossAnnualIncomeNumber = useMemo(
 		() => parseNumber(grossAnnualIncome),
 		[grossAnnualIncome],
@@ -50,10 +53,7 @@ export default function PayePit() {
 		[otherDeductions],
 	);
 
-	// --------------------------- validation ---------------------------
-	const isCalculationValid = grossAnnualIncomeNumber > 0 && !busy;
-
-	// --------------------------- calculation ---------------------------
+	// ==================================== Calculation
 	async function calculate() {
 		setError("");
 
@@ -65,7 +65,7 @@ export default function PayePit() {
 		setBusy(true);
 
 		try {
-			// ------------------- Prepare payload -------------------
+			// ==================================== Payload construction
 			const payload = {
 				taxType: "PAYE/PIT",
 				grossAnnualIncome: grossAnnualIncomeNumber,
@@ -76,14 +76,14 @@ export default function PayePit() {
 				otherDeductions: otherDeductionsNumber,
 			};
 
-			// ------------------- DEV logging -------------------
+			// ==================================== DEV logging for payload
 			if (import.meta.env.DEV) {
 				console.log("=== Frontend PAYE/PIT API Call ===");
 				console.log("Payload sent:", payload);
 				console.log("Full URL:", API_BASE + ENDPOINTS.taxCalculate("payePit"));
 			}
 
-			// ------------------- Call API -------------------
+			// ==================================== API call
 			const response = await api.post<ApiResponse<PayePitResponse>>(
 				ENDPOINTS.taxCalculate("payePit"),
 				payload,
@@ -96,15 +96,9 @@ export default function PayePit() {
 
 			const dto = response.data.data;
 
-			// -------------------- DEV logging for dto -------------------
-			if (import.meta.env.DEV) {
-				console.log("=== Frontend API DTO (RAW) ===");
-				console.log(JSON.stringify(dto, null, 2));
-			}
-
 			setResult(dto);
 
-			// ------------------- Save history (auth only) -------------------
+			// ==================================== Authenticated user history logging
 			if (authenticated) {
 				await addHistory({
 					type: "PAYE/PIT",
@@ -113,19 +107,13 @@ export default function PayePit() {
 				});
 			}
 		} catch (err: unknown) {
-			const e = err as {
-				response?: { data?: { message?: string } };
-				message?: string;
-			};
-			setError(
-				e.response?.data?.message || e.message || "PAYE/PIT calculation failed",
-			);
+			setError(getErrorMessage(err, "PAYE/PIT calculation failed"));
 		} finally {
 			setBusy(false);
 		}
 	}
 
-	// --------------------------- RENDER ---------------------------
+	// ==================================== Render
 	return (
 		<TaxPageLayout
 			title="PAYE / PIT Calculator"
@@ -212,7 +200,10 @@ export default function PayePit() {
 			<CalculateButton
 				onClick={calculate}
 				loading={busy}
-				enabled={isCalculationValid}
+				enabled={isPayePitCalculationValid({
+					grossAnnualIncomeNumber,
+					busy,
+				})}
 			/>
 		</TaxPageLayout>
 	);

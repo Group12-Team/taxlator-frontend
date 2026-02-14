@@ -1,5 +1,8 @@
+// ====================================
 // src/pages/tax/FreelancerResultPanel.tsx
-// -----------------------------------------------------------
+// ====================================
+
+// ====================================
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { formatCurrency } from "../../utils/formatCurrency";
@@ -9,6 +12,7 @@ import type {
 	FreelancerResponse,
 	FreelancerBand,
 } from "../../types/tax/freelancer";
+// ====================================
 
 // ============================== FREELANCER RESULT PANEL ==============================
 interface Props {
@@ -17,6 +21,7 @@ interface Props {
 	prefillEmail?: string;
 }
 
+// ====================================
 export default function FreelancerResultPanel({
 	backendResult,
 	isAuthenticated,
@@ -26,10 +31,13 @@ export default function FreelancerResultPanel({
 	const [open, setOpen] = useState(false);
 
 	if (!backendResult) return null;
+	// ====================================
 
 	const { summary, standardDeductions, totals, progressive, taxType, country } =
 		backendResult;
+	// ====================================
 
+	// ==================================== RENDER ====================================
 	return (
 		<div className="w-full">
 			{/* ====================== HEADER ===================== */}
@@ -77,6 +85,7 @@ export default function FreelancerResultPanel({
 					<div className="text-sm font-semibold text-slate-600 mb-4">
 						Tax Calculation Breakdown
 					</div>
+					{/* ================================================================== */}
 
 					<hr className="my-4 border-brand-200" />
 
@@ -98,6 +107,7 @@ export default function FreelancerResultPanel({
 							</span>
 						</div>
 					</div>
+					{/* ================================================================== */}
 
 					<hr className="my-4 border-brand-200" />
 
@@ -116,6 +126,7 @@ export default function FreelancerResultPanel({
 							</span>
 						</div>
 					</div>
+					{/* ================================================================== */}
 
 					<hr className="my-4 border-brand-200" />
 
@@ -144,6 +155,7 @@ export default function FreelancerResultPanel({
 							)}
 						</div>
 					)}
+					{/* ================================================================== */}
 
 					<hr className="my-4 border-brand-200" />
 
@@ -166,6 +178,7 @@ export default function FreelancerResultPanel({
 								</span>
 							</div>
 						))}
+						{/* ================================================================== */}
 
 						<hr className="my-4 border-brand-200" />
 
@@ -192,6 +205,7 @@ export default function FreelancerResultPanel({
 					Calculate Another Tax
 				</ResultPanelButton>
 
+				{/*====================== GUEST CTA========================  */}
 				{!isAuthenticated && <GuestCTA prefillEmail={prefillEmail} />}
 			</div>
 		</div>

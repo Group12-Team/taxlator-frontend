@@ -1,6 +1,8 @@
+// ====================================
 // src/components/ui/buttons/CalculateButton.tsx
+// ====================================
 
-// -----------------------------------------------------------
+// ==================================== CALCULATE BUTTON COMPONENT ====================================
 type CalculateButtonProps = {
 	onClick: () => void;
 	enabled: boolean;
@@ -10,6 +12,7 @@ type CalculateButtonProps = {
 	className?: string;
 };
 
+// ====================================
 export default function CalculateButton({
 	onClick,
 	enabled,
@@ -20,6 +23,7 @@ export default function CalculateButton({
 }: CalculateButtonProps) {
 	const isDisabled = !enabled || loading;
 
+	// ==================================== Render
 	return (
 		<button
 			onClick={onClick}
