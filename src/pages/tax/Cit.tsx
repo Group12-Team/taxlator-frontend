@@ -5,11 +5,11 @@
 // ====================================
 import { useMemo, useState, useEffect } from "react";
 import TaxPageLayout from "./TaxPageLayout";
-import { api, API_BASE } from "../../api/client";
+import { api } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
 import { useHistory } from "../../state/history";
 import { useAuth } from "../../state/useAuth";
-import type { CitResponse } from "../../types/tax/cit";
+import type { CitResponse } from "../../types/tax/cit.types";
 import CitResultPanel from "./CitResultPanel";
 import CurrencyInput from "../../components/ui/inputs/CurrencyInput";
 import CalculateButton from "../../components/ui/buttons/CalculateButton";
@@ -85,13 +85,6 @@ export default function CIT() {
 				accountingProfit:
 					companySize === "Multinational" ? accountingProfitNumber : undefined,
 			};
-
-			// ==================================== DEV logging for payload
-			if (import.meta.env.DEV) {
-				console.log("=== Frontend CIT API Call ===");
-				console.log("Payload sent:", payload);
-				console.log("Full URL:", API_BASE + ENDPOINTS.taxCalculate("cit"));
-			}
 
 			// ==================================== Api call
 			const response = await api.post<ApiResponse<CitResponse>>(

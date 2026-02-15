@@ -48,3 +48,12 @@ export function isPayePitCalculationValid(params: {
 	const { grossAnnualIncomeNumber, busy } = params;
 	return grossAnnualIncomeNumber > 0 && !busy;
 }
+
+// ============================== VAT CALCULATION VALIDATION
+export function isVatCalculationValid(params: {
+	transactionAmountNumber: number;
+	busy: boolean;
+}): boolean {
+	const { transactionAmountNumber, busy } = params;
+	return transactionAmountNumber > 0 && !busy;
+}

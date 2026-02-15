@@ -1,6 +1,8 @@
+// ====================================
 // src/pages/tax/Vat.tsx
+// ====================================
 
-// -----------------------------------------------------------
+// ====================================
 import { useMemo, useState } from "react";
 import TaxPageLayout from "./TaxPageLayout";
 import { api } from "../../api/client";
@@ -9,9 +11,6 @@ import { useHistory } from "../../state/history";
 import { useAuth } from "../../state/useAuth";
 import VatResultPanel from "./VatResultPanel";
 import { Check } from "lucide-react";
-
-// Helpers Imports
-// -----------------------------------------------------------
 import {
 	parseNumber,
 	formatNumber,
@@ -19,26 +18,23 @@ import {
 } from "../../utils/numberInput";
 import CalculateButton from "../../components/ui/buttons/CalculateButton";
 import CurrencyInput from "../../components/ui/inputs/CurrencyInput";
-
-// types
-// -----------------------------------------------------------
+import { getErrorMessage } from "../../api/getErrorMessage";
+import type { ApiResponse } from "../../api/api.types";
 import type {
-	VatCalculatePayload,
+	VatResponse,
 	VatCalculationType,
 	VatTransactionType,
-	ApiSuccess,
-	ApiFail,
-} from "../../api/types";
-import type { HistoryResult } from "../../types/history.type";
+} from "../../types/vat/vat.types";
+import { isVatCalculationValid } from "../../utils/calculateButtonValidation";
+// import type { HistoryResult } from "../../types/history.type";
+// ====================================
 
-// -----------------------------------------------------------
-// -----------------------------------------------------------
-
+// ==================================== VAT UI PAGE =================================
 export default function Vat() {
 	const { authenticated } = useAuth();
 	const { addHistory } = useHistory();
-	// form state
-	// ---------------------------
+
+	// ==================================== Form state
 	const [transactionAmount, setTransactionAmount] = useState("");
 	const [calculationType, setCalculationType] =
 		useState<VatCalculationType>("add");
@@ -46,82 +42,66 @@ export default function Vat() {
 		"Domestic sale/Purchase",
 	);
 
-	// request state triad
-	// ---------------------------
+	// ==================================== Request state
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
-	const [result, setResult] = useState<HistoryResult | null>(null);
+	const [result, setResult] = useState<VatResponse | null>(null);
 
-	// derived numeric values
-	// ---------------------------
+	// ==================================== Derived numbers
 	const transactionAmountNumber = useMemo(
 		() => parseNumber(transactionAmount),
 		[transactionAmount],
 	);
 
-	// form validation, proceed button enabled
-	// ---------------------------
-	const isCalculationValid = transactionAmountNumber > 0 && !busy;
-
-	// -----------------------------------------------------------
+	// ==================================== Calculation
 	async function calculate() {
 		setError("");
+
+		if (transactionAmountNumber <= 0) {
+			setError("Transaction amount must be greater than 0");
+			return;
+		}
+
 		setBusy(true);
 
 		try {
-			if (
-				!Number.isFinite(transactionAmountNumber) ||
-				transactionAmountNumber <= 0
-			) {
-				setError("Transaction amount must be a valid number greater than 0.");
-				return;
-			}
-
-			const payload: VatCalculatePayload = {
+			const payload = {
 				transactionAmount: transactionAmountNumber,
 				calculationType,
 				transactionType,
 			};
 
-			const { data } = await api.post<ApiSuccess<unknown> | ApiFail>(
+			// ==================================== API call
+			const response = await api.post<ApiResponse<VatResponse>>(
 				ENDPOINTS.vatCalculate,
 				payload,
 			);
 
-			// Typed success guard
-			if (!data.success) {
-				setError(data.message || data.error || "VAT calculation failed");
+			if (!response.data.success) {
+				setError(response.data.message || "Calculation failed");
 				return;
 			}
 
-			// Fully typed result
-			const typedResult = data.data as HistoryResult;
-			setResult(typedResult);
+			const dto = response.data.data;
 
-			// Log to history
-			addHistory({
-				type: "VAT",
-				input: payload,
-				result: typedResult,
-			});
+			setResult(dto);
+
+			// ==================================== Authenticated user history logging
+			if (authenticated) {
+				await addHistory({
+					type: "VAT",
+					input: payload,
+					result: dto,
+				});
+			}
 		} catch (err: unknown) {
-			const e = err as {
-				response?: { data?: { message?: string; error?: string } };
-				message?: string;
-			};
-
-			setError(
-				e.response?.data?.message ||
-					e.response?.data?.error ||
-					e.message ||
-					"VAT calculation failed",
-			);
+			setError(getErrorMessage(err, "VAT calculation failed"));
 		} finally {
 			setBusy(false);
 		}
 	}
 
-	// -----------------------------------------------------------
+	// ==================================== Render
 	return (
 		<TaxPageLayout
 			title="VAT Calculation"
@@ -129,9 +109,9 @@ export default function Vat() {
 			rightPanel={
 				result ? (
 					<VatResultPanel
-						result={result}
-						amount={transactionAmountNumber}
+						backendResult={result}
 						isAuthenticated={authenticated}
+						prefillEmail=""
 					/>
 				) : null
 			}
@@ -142,15 +122,19 @@ export default function Vat() {
 				</div>
 			)}
 
-			{/* Transaction Amount */}
+			{/* ======================= Transaction Amount =======================  */}
 			<CurrencyInput
 				id="transactionAmount"
-				label="Transaction Amount"
+				label={
+					<span>
+						Transaction Amount <span className="text-red-500">*</span>
+					</span>
+				}
 				value={formatNumber(transactionAmount)}
 				onChange={(v) => setTransactionAmount(onlyNumbers(v))}
 			/>
 
-			{/* Add/Remove toggle */}
+			{/* ======================= Add/Remove toggle =======================  */}
 			<div className="mt-3 grid grid-cols-2 gap-4">
 				<button
 					type="button"
@@ -177,7 +161,7 @@ export default function Vat() {
 				</button>
 			</div>
 
-			{/* Transaction type */}
+			{/* ======================= Transaction type =======================  */}
 			<div className="mt-6">
 				<div className="font-medium text-sm text-slate-800">
 					Transaction type
@@ -228,14 +212,15 @@ export default function Vat() {
 				</div>
 			</div>
 
-			{/* Proceed/calculate button */}
+			{/* ======================= Proceed/calculate button =======================  */}
 			<CalculateButton
 				onClick={calculate}
 				loading={busy}
-				enabled={isCalculationValid}
+				enabled={isVatCalculationValid({
+					transactionAmountNumber,
+					busy,
+				})}
 			/>
 		</TaxPageLayout>
 	);
 }
-// -----------------------------------------------------------
-// -----------------------------------------------------------

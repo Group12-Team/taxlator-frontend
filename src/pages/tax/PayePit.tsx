@@ -5,7 +5,7 @@
 // ====================================
 import { useMemo, useState } from "react";
 import TaxPageLayout from "../../pages/tax/TaxPageLayout";
-import { api, API_BASE } from "../../api/client";
+import { api } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
 import { useHistory } from "../../state/history";
 import { useAuth } from "../../state/useAuth";
@@ -18,7 +18,7 @@ import {
 	onlyNumbers,
 } from "../../utils/numberInput";
 import type { ApiResponse } from "../../api/api.types";
-import type { PayePitResponse } from "../../types/tax/payePit";
+import type { PayePitResponse } from "../../types/tax/payePit.types";
 import { getErrorMessage } from "../../api/getErrorMessage";
 import { isPayePitCalculationValid } from "../../utils/calculateButtonValidation";
 // ====================================
@@ -76,13 +76,6 @@ export default function PayePit() {
 				otherDeductions: otherDeductionsNumber,
 			};
 
-			// ==================================== DEV logging for payload
-			if (import.meta.env.DEV) {
-				console.log("=== Frontend PAYE/PIT API Call ===");
-				console.log("Payload sent:", payload);
-				console.log("Full URL:", API_BASE + ENDPOINTS.taxCalculate("payePit"));
-			}
-
 			// ==================================== API call
 			const response = await api.post<ApiResponse<PayePitResponse>>(
 				ENDPOINTS.taxCalculate("payePit"),
@@ -134,6 +127,7 @@ export default function PayePit() {
 				</div>
 			)}
 
+			{/* ======================= Gross Annual Income=======================  */}
 			<CurrencyInput
 				id="grossAnnualIncome"
 				label={
@@ -145,12 +139,15 @@ export default function PayePit() {
 				onChange={(v) => setGrossAnnualIncome(onlyNumbers(v))}
 			/>
 
+			{/* ======================= Toggle deductions =======================  */}
 			<div className="mt-5 rounded-lg border border-brand-200 p-4">
 				<div className="text-xs font-medium text-slate-600">
 					Pension Contribution
 				</div>
 				<div className="mt-1 text-xs text-slate-600">8% deduction</div>
 			</div>
+
+			{/* ==============================================  */}
 
 			<div className="mt-3 flex justify-between rounded-lg border border-brand-200 p-4">
 				<div>
@@ -167,6 +164,8 @@ export default function PayePit() {
 				/>
 			</div>
 
+			{/* ==============================================  */}
+
 			<div className="mt-3 flex justify-between rounded-lg border border-brand-200 p-4">
 				<div>
 					<div className="text-xs font-medium text-slate-700">
@@ -182,6 +181,7 @@ export default function PayePit() {
 				/>
 			</div>
 
+			{/* ======================= Rent relief =======================  */}
 			<CurrencyInput
 				id="rentRelief"
 				label="Rent Relief (20% of Annual Rent)"
@@ -190,6 +190,7 @@ export default function PayePit() {
 				containerClassName="my-3"
 			/>
 
+			{/* ======================= Other deductions =======================  */}
 			<CurrencyInput
 				id="otherDeductions"
 				label="Other Deductions"
@@ -197,6 +198,7 @@ export default function PayePit() {
 				onChange={(v) => setOtherDeductions(onlyNumbers(v))}
 			/>
 
+			{/* ======================= Proceed/calculate button =======================  */}
 			<CalculateButton
 				onClick={calculate}
 				loading={busy}

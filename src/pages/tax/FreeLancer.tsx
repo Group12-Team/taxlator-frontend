@@ -5,7 +5,7 @@
 // ====================================
 import { useMemo, useState } from "react";
 import TaxPageLayout from "../../pages/tax/TaxPageLayout";
-import { api, API_BASE } from "../../api/client";
+import { api } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
 import { useHistory } from "../../state/history";
 import { useAuth } from "../../state/useAuth";
@@ -18,7 +18,7 @@ import {
 	onlyNumbers,
 } from "../../utils/numberInput";
 import type { ApiResponse } from "../../api/api.types";
-import type { FreelancerResponse } from "../../types/tax/freelancer";
+import type { FreelancerResponse } from "../../types/tax/freelancer.types";
 import { getErrorMessage } from "../../api/getErrorMessage";
 import { isFreelancerCalculationValid } from "../../utils/calculateButtonValidation";
 
@@ -77,16 +77,6 @@ export default function FreeLancer() {
 					? totalBusinessExpensesNumber
 					: 0,
 			};
-
-			// ==================================== DEV logging for payload
-			if (import.meta.env.DEV) {
-				console.log("=== Frontend Freelancer API Call ===");
-				console.log("Payload:", payload);
-				console.log(
-					"Full URL:",
-					API_BASE + ENDPOINTS.taxCalculate("freelancer"),
-				);
-			}
 
 			// ==================================== API call
 			const response = await api.post<ApiResponse<FreelancerResponse>>(

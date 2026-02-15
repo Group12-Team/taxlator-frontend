@@ -11,7 +11,7 @@ import GuestCTA from "../../components/ui/resultPanel/GuestCTA";
 import type {
 	FreelancerResponse,
 	FreelancerBand,
-} from "../../types/tax/freelancer";
+} from "../../types/tax/freelancer.types";
 // ====================================
 
 // ============================== FREELANCER RESULT PANEL ==============================

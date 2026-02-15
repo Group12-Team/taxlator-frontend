@@ -1,9 +1,9 @@
 // ====================================
-// src/types/payePit.ts
+// src/types/tax/freelancer.types.ts
 // ====================================
 
-// ==================== PAYE/PIT TYPES ====================
-export interface PayePitBand {
+// ==================== FREELANCER TAX BAND ====================
+export interface FreelancerBand {
 	label: string;
 	rate: number;
 	rateFormatted: string;
@@ -13,7 +13,8 @@ export interface PayePitBand {
 	maxLimit?: number;
 }
 
-export interface PayePitResponse {
+// ==================== FREELANCER TAX RESPONSE ====================
+export interface FreelancerResponse {
 	taxType: string;
 	country: {
 		name: string;
@@ -25,15 +26,12 @@ export interface PayePitResponse {
 		netAnnualIncome: number;
 		totalAnnualTax: number;
 		monthlyTax: number;
+		effectiveTaxRate: number;
 	};
 	// ================= DEDUCTIONS =================
 	standardDeductions: {
-		rentRelief: number;
-		pension: number;
-		nhis: number;
-		nationalInsuranceScheme: number;
-		nhf: number;
-		otherDeductions: number;
+		pensionContribution: number;
+		businessExpenses: number;
 	};
 	// ================= OTHER =================
 	totals: {
@@ -42,8 +40,8 @@ export interface PayePitResponse {
 	};
 	// ================= PROGRESSIVE =================
 	progressive: {
-		bands: PayePitBand[];
-		fullBands?: PayePitBand[];
+		bands: FreelancerBand[];
+		fullBands?: FreelancerBand[];
 		totalAnnualTax: number;
 		monthlyTax: number;
 	};

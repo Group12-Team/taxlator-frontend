@@ -1,28 +1,46 @@
-// src/types/vat.ts
-// -----------------------------------------------------------
+// ====================================
+// src/types/tax/vat.types.ts
+// ====================================
 
-// ==================== VAT RESPONSE ====================
+// ==================================== VAT TYPES ================================
+export type VatCalculationType = "add" | "remove";
+
+export type VatTransactionType =
+	| "Domestic sale/Purchase"
+	| "Digital Services"
+	| "Export/International"
+	| "Exempt Items";
+
 export interface VatResponse {
 	taxType: string;
-	country: string;
+	country: {
+		name: string;
+		code: string;
+	};
 
-	// ================= RAW NUMERIC VALUES =================
-	transactionAmount: number;
-	baseAmount: number;
-	vatRate: number;
-	vatAmount: number;
-	totalAmount: number;
+	// ================= SUMMARY =================
+	summary: {
+		transactionAmount: number;
+		baseAmount: number;
+		vatAmount: number;
+		totalAmount: number;
+		vatRate: number;
+	};
 
-	// ================= FORMATTED VALUES =================
-	transactionAmountFormatted: string;
-	baseAmountFormatted: string;
-	vatAmountFormatted: string;
-	totalAmountFormatted: string;
-	vatRateFormatted: string;
+	// ================= TOTALS =================
+	totals: {
+		totalWithVat: number;
+		totalVat: number;
+	};
 
-	// ================= METADATA =================
-	transactionType: string;
-	calculationType: string;
-	customer: string | null;
-	invoiceNumber: string | null;
+	// ================= PROGRESSIVE =================
+	progressive: {
+		transactionAmountFormatted: string;
+		calculationType: string | null;
+		transactionType: string | null;
+		vatRateFormatted: string;
+		baseAmountFormatted: string;
+		vatAmountFormatted: string;
+		totalAmountFormatted: string;
+	};
 }

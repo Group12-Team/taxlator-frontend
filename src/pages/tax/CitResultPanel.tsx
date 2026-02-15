@@ -5,7 +5,7 @@
 // ====================================
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { CitResponse } from "../../types/tax/cit";
+import type { CitResponse } from "../../types/tax/cit.types";
 import { formatCurrency } from "../../utils/formatCurrency";
 import GuestCTA from "../../components/ui/resultPanel/GuestCTA";
 import ResultPanelButton from "../../components/ui/buttons/ResultPanelButton";

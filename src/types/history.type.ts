@@ -1,10 +1,10 @@
 // src/types/history.type.ts
 
 // --------------------------------------------------
-import type { PayePitResponse } from "./tax/payePit";
-import type { FreelancerResponse } from "./tax/freelancer";
+import type { PayePitResponse } from "./tax/payePit.types";
+import type { FreelancerResponse } from "./tax/freelancer.types";
 import type { VatResponse } from "./vat/vat.types";
-import type { CitResponse } from "./tax/cit";
+import type { CitResponse } from "./tax/cit.types";
 
 // ------------------------------ HISTORY TYPE ------------------------------
 export type HistoryType = "PAYE/PIT" | "VAT" | "FREELANCER" | "CIT";
