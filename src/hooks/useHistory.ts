@@ -1,13 +1,15 @@
 // ====================================
-//  src/hooks/useHistory.ts
+// src/hooks/useHistory.ts
 // ====================================
 
+// ====================================
 import { useState, useCallback } from "react";
 import type { HistoryItemDTO, HistoryType } from "../types/history.type";
 import { fetchHistory, clearHistory } from "../state/history";
 import { api } from "../api/client";
+// ====================================
 
-// ==================================== USE HISTORY HOOK ====================================
+// ====================== HELPER FUNCTION TO MAP HISTORY TYPE TO LABEL ======================
 export function useHistory() {
 	const [history, setHistory] = useState<HistoryItemDTO[]>([]);
 	const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -15,19 +17,23 @@ export function useHistory() {
 	const [error, setError] = useState<string | null>(null);
 
 	// ================= LOAD HISTORY =================
-	const loadHistory = useCallback(async (cursor?: string) => {
-		setLoading(true);
-		try {
-			const data = await fetchHistory(cursor);
-			setHistory((prev) => (cursor ? [...prev, ...data.items] : data.items));
-			setNextCursor(data.nextCursor ?? null);
-		} catch (err: unknown) {
-			if (err instanceof Error) setError(err.message);
-			else setError("Failed to load history");
-		} finally {
-			setLoading(false);
-		}
-	}, []);
+	const loadHistory = useCallback(
+		async (cursor?: string) => {
+			if (loading) return;
+			setLoading(true);
+			try {
+				const data = await fetchHistory(cursor);
+				setHistory((prev) => (cursor ? [...prev, ...data.items] : data.items));
+				setNextCursor(data.nextCursor ?? null);
+			} catch (err: unknown) {
+				if (err instanceof Error) setError(err.message);
+				else setError("Failed to load history");
+			} finally {
+				setLoading(false);
+			}
+		},
+		[loading],
+	);
 
 	// ================= REFRESH HISTORY =================
 	const refreshHistory = useCallback(() => loadHistory(), [loadHistory]);
@@ -57,7 +63,6 @@ export function useHistory() {
 		}) => {
 			try {
 				await api.post("/api/history", { type, input, result });
-				// Optionally refresh the local history list after adding
 				await refreshHistory();
 			} catch (err: unknown) {
 				if (err instanceof Error) setError(err.message);
