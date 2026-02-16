@@ -41,7 +41,7 @@ export default function History() {
 
 			setLoading(true);
 			try {
-				const res = await api.get<GetHistoryResponse>("/history", {
+				const res = await api.get<GetHistoryResponse>("/api/history", {
 					params: { limit: 10, cursor },
 				});
 
@@ -69,7 +69,7 @@ export default function History() {
 
 	const clearAll = async () => {
 		if (!authenticated) return;
-		await api.delete("/history");
+		await api.delete("/api/history");
 		setItems([]);
 		setSelectedId(null);
 		setNextCursor(null);
