@@ -1,8 +1,8 @@
+// ====================================
 // src/pages/otherPages/SignIn.tsx
+// ====================================
 
-// ----------------------------------------------
-// SignIn page component: handles user login, errors, password visibility, and redirects.
-// ----------------------------------------------
+// ====================================
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";
@@ -12,15 +12,16 @@ import inputStyles from "../../components/ui/inputs/InputStyles";
 import FormButton from "../../components/ui/buttons/FormButton";
 import { api } from "../../api/client";
 import { AxiosError } from "axios";
+import { setToken, extractToken } from "../../api/client";
+// ====================================
 
-// ----------------------------------------------
-// API response type
+// ====================================
 type SigninResponse = {
 	success?: boolean;
 	message?: string;
 };
 
-// ------------------------------------- SIGN IN COMPONENT -------------------------------------
+// ==================================== SIGN IN COMPONENT  ====================================
 export default function SignIn() {
 	const { user, refresh } = useAuth();
 	const navigate = useNavigate();
@@ -44,18 +45,17 @@ export default function SignIn() {
 	const isFormValid =
 		email.trim().length > 0 && password.trim().length >= 8 && !busy;
 
-	// ------------------------- Form submission -------------------------
+	//  ==================================== Form submission  ====================================
 	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError("");
 		setBusy(true);
 
 		try {
-			// ✅ Call API to sign in; cookies are HttpOnly
 			const { data } = await api.post<SigninResponse>(
 				ENDPOINTS.signin,
 				{ email, password },
-				{ withCredentials: true }, // important to set HttpOnly cookie
+				{ withCredentials: true },
 			);
 
 			if (!data.success) {
@@ -63,7 +63,11 @@ export default function SignIn() {
 				return;
 			}
 
-			// refresh user data in context and redirect to dashboard
+			//  ==================================== Extract token and set it for future requests
+			const token = extractToken(data);
+			if (token) setToken(token);
+
+			//  ==================================== refresh user context and redirect
 			await refresh();
 			navigate("/dashboard", { replace: true });
 		} catch (err: unknown) {
@@ -79,7 +83,7 @@ export default function SignIn() {
 		}
 	};
 
-	// ------------------------- JSX -------------------------
+	// ==================================== RENDER ====================================
 	return (
 		<div className="bg-slate-200 min-h-[80vh] w-full flex items-center justify-center px-4 py-10">
 			<div className="w-full max-w-md bg-white rounded-2xl border shadow-soft overflow-hidden">

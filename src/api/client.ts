@@ -2,12 +2,10 @@
 // src/api/client.ts
 // ===============================
 
-
 // ===============================
 import axios from "axios";
 import type { AnyJson } from "../api/api.types";
 // ===============================
-
 
 // =============================== API BASE CONFIGURATION ===============================
 export const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
@@ -43,9 +41,9 @@ export function extractToken(data: AnyJson): string | null {
 
 // =============================== AXIOS INSTANCE ===============================
 export const api = axios.create({
-	baseURL: API_BASE, 
+	baseURL: API_BASE,
 	headers: { "Content-Type": "application/json" },
-	withCredentials: true,
+	withCredentials: true, // ✅ always send cookies
 });
 
 // =============================== AUTH INTERCEPTOR ===============================
@@ -56,8 +54,9 @@ api.interceptors.request.use((config) => {
 		config.headers = config.headers ?? {};
 		config.headers.Authorization = `Bearer ${token}`;
 	}
+	// If token not in localStorage, we still rely on HttpOnly cookies
+	// so requests to backend will succeed if cookie is present
 
-	// =============================== DEBUG LOGGING ===============================
 	if (config.url) {
 		console.log(
 			"API request:",
