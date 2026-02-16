@@ -43,7 +43,7 @@ export function extractToken(data: AnyJson): string | null {
 
 // =============================== AXIOS INSTANCE ===============================
 export const api = axios.create({
-	baseURL: API_BASE, // already includes /api
+	baseURL: API_BASE, 
 	headers: { "Content-Type": "application/json" },
 	withCredentials: true,
 });
