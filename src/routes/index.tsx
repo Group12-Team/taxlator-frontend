@@ -1,19 +1,20 @@
+// ===============================
 // src/routes/index.tsx
-// ----------------------------------------------
+// ===============================
 
-// imports
-// ----------------------------------------------
+// ===============================
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-
 import PublicRoutes from "./public.routes";
 import AuthRoutes from "./auth.routes";
 import TaxRoutes from "./tax.routes";
 import ProtectedRoutes from "./protected.routes";
+// ===============================
 
 // ----------------------------------------------
-// ----------------------------------------------
 
+
+// =============================== APP ROUTES COMPONENT ===============================
 export default function AppRoutes() {
 	const location = useLocation();
 
@@ -31,4 +32,4 @@ export default function AppRoutes() {
 	);
 }
 // ----------------------------------------------
-// ----------------------------------------------
+

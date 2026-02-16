@@ -1,16 +1,19 @@
+// ===============================
 // src/pages/otherPages/History.tsx
+// ===============================
 
-// ----------------------------------------------
-
+// ===============================
 import { useEffect, useState, useCallback } from "react";
-import { api } from "../../api/client";
+import { api, API_BASE } from "../../api/client";
 import type { HistoryItemDTO, HistoryType } from "../../types/history.type";
 import type { GetHistoryResponse } from "../../api/history.types";
 import { useAuth } from "../../state/useAuth";
+// ===============================
 
+// =============================== HELPER FUNCTION ===============================
 function typeLabel(t: HistoryType) {
 	switch (t) {
-		case "PAYE/PIT":
+		case "PAYE":
 			return "PAYE / PIT";
 		case "VAT":
 			return "VAT";
@@ -23,6 +26,7 @@ function typeLabel(t: HistoryType) {
 	}
 }
 
+// =============================== HISTORY PAGE COMPONENT ===============================
 export default function History() {
 	const { authenticated } = useAuth();
 
@@ -74,7 +78,7 @@ export default function History() {
 	return (
 		<div className="bg-slate-100 min-h-[80vh] px-4 py-8">
 			<div className="max-w-6xl mx-auto">
-				{/* HEADER */}
+				{/*=========================== HEADER =========================== */}
 				<div className="flex items-start justify-between gap-3 flex-col sm:flex-row">
 					<div>
 						<div className="text-xl font-semibold text-slate-900">History</div>
@@ -88,14 +92,18 @@ export default function History() {
 					{authenticated && (
 						<div className="flex gap-2">
 							<button
-								onClick={() => window.open("/api/history/export/csv", "_blank")}
+								onClick={() =>
+									window.open(`${API_BASE}/history/export/csv`, "_blank")
+								}
 								className="px-3 py-2 rounded border text-sm bg-white hover:bg-slate-50"
 							>
 								Export CSV
 							</button>
 
 							<button
-								onClick={() => window.open("/api/history/export/pdf", "_blank")}
+								onClick={() =>
+									window.open(`${API_BASE}/history/export/pdf`, "_blank")
+								}
 								className="px-3 py-2 rounded border text-sm bg-white hover:bg-slate-50"
 							>
 								Export PDF
@@ -111,10 +119,10 @@ export default function History() {
 					)}
 				</div>
 
-				{/* CONTENT */}
+				{/* =========================== CONTENT =========================== */}
 				{authenticated && (
 					<div className="mt-6 grid lg:grid-cols-2 gap-4">
-						{/* LIST */}
+						{/*=========================== LIST =========================== */}
 						<div className="bg-white border rounded-2xl shadow-soft overflow-hidden">
 							<div className="px-4 py-3 border-b font-semibold text-sm">
 								Recent Calculations
@@ -158,7 +166,7 @@ export default function History() {
 							)}
 						</div>
 
-						{/* DETAILS */}
+						{/* =========================== DETAILS =========================== */}
 						<div className="bg-white border rounded-2xl shadow-soft overflow-hidden">
 							<div className="px-4 py-3 border-b font-semibold text-sm">
 								Details

@@ -1,30 +1,30 @@
+// ====================================
 // src/state/history.ts
-// --------------------------------------------------
+// ====================================
 
+// ====================================
 import { api } from "../api/client";
-import { useAuth } from "./useAuth";
-import type { HistoryResult } from "../types/history.type";
+import type { HistoryListResponse } from "../types/history.type";
+// ====================================
 
-type AddHistoryPayload = {
-	input: unknown;
-} & HistoryResult;
+// ================= FETCH HISTORY =================
+export async function fetchHistory(cursor?: string) {
+	const url = cursor ? `/api/history?cursor=${cursor}` : "/api/history";
+	const { data } = await api.get<HistoryListResponse>(url);
+	return data;
+}
 
-/**
- * Automatically records calculation history for authenticated users.
- * Strongly typed so result must match the calculation type.
- */
-export function useHistory() {
-	const { authenticated } = useAuth();
+// ================= CLEAR HISTORY =================
+export async function clearHistory() {
+	await api.delete("/api/history");
+}
 
-	async function addHistory(payload: AddHistoryPayload) {
-		if (!authenticated) return; // 
+// ================= EXPORT CSV =================
+export function exportHistoryCSV() {
+	window.open(`${api.defaults.baseURL}/api/history/export/csv`, "_blank");
+}
 
-		try {
-			await api.post("/history", payload);
-		} catch {
-			// History must NEVER break UX
-		}
-	}
-
-	return { addHistory };
+// ================= EXPORT PDF =================
+export function exportHistoryPDF() {
+	window.open(`${api.defaults.baseURL}/api/history/export/pdf`, "_blank");
 }

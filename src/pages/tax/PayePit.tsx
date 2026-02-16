@@ -7,7 +7,7 @@ import { useMemo, useState } from "react";
 import TaxPageLayout from "../../pages/tax/TaxPageLayout";
 import { api } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
-import { useHistory } from "../../state/history";
+import { useHistory } from "../../hooks/useHistory";
 import { useAuth } from "../../state/useAuth";
 import PayePitResultPanel from "./PayePitResultPanel";
 import CalculateButton from "../../components/ui/buttons/CalculateButton";
@@ -21,6 +21,7 @@ import type { ApiResponse } from "../../api/api.types";
 import type { PayePitResponse } from "../../types/tax/payePit.types";
 import { getErrorMessage } from "../../api/getErrorMessage";
 import { isPayePitCalculationValid } from "../../utils/calculateButtonValidation";
+
 // ====================================
 
 // ==================================== PAYE/PIT UI PAGE =================================
@@ -94,7 +95,7 @@ export default function PayePit() {
 			// ==================================== Authenticated user history logging
 			if (authenticated) {
 				await addHistory({
-					type: "PAYE/PIT",
+					type: "PAYE",
 					input: payload,
 					result: dto,
 				});

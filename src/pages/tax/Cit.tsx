@@ -7,7 +7,7 @@ import { useMemo, useState, useEffect } from "react";
 import TaxPageLayout from "./TaxPageLayout";
 import { api } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
-import { useHistory } from "../../state/history";
+import { useHistory } from "../../hooks/useHistory";
 import { useAuth } from "../../state/useAuth";
 import type { CitResponse } from "../../types/tax/cit.types";
 import CitResultPanel from "./CitResultPanel";

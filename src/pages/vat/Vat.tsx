@@ -4,10 +4,10 @@
 
 // ====================================
 import { useMemo, useState } from "react";
-import TaxPageLayout from "./TaxPageLayout";
+import TaxPageLayout from "../tax/TaxPageLayout";
 import { api } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
-import { useHistory } from "../../state/history";
+import { useHistory } from "../../hooks/useHistory";
 import { useAuth } from "../../state/useAuth";
 import VatResultPanel from "./VatResultPanel";
 import { Check } from "lucide-react";
