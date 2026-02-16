@@ -1,17 +1,14 @@
+// ===============================
 // src/App.tsx
-// ----------------------------------------------
+// ===============================
 
-// DEV DEBUGGING PANEL (REMOVE IN PRODUCTION)
-import AuthDebugPanel from "./components/dev/AuthDebugPanel";
-
-// ----------------------------------------------
+// ===============================
 import Shell from "./components/layouts/Shell";
 import { useAuth } from "./state/useAuth";
 import AppRoutes from "./routes";
+// ===============================
 
-// ----------------------------------------------
-// ----------------------------------------------
-
+// =============================== APP COMPONENT ===============================
 export default function App() {
 	const { loading } = useAuth();
 
@@ -26,9 +23,6 @@ export default function App() {
 	return (
 		<Shell>
 			<AppRoutes />
-			<AuthDebugPanel /> {/* DEV ONLY */}
 		</Shell>
 	);
 }
-// ----------------------------------------------
-// ----------------------------------------------
