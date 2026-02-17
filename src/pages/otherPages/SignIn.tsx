@@ -12,7 +12,6 @@ import inputStyles from "../../components/ui/inputs/InputStyles";
 import FormButton from "../../components/ui/buttons/FormButton";
 import { api } from "../../api/client";
 import { AxiosError } from "axios";
-import { setToken, extractToken } from "../../api/client";
 // ====================================
 
 // ====================================
@@ -21,18 +20,16 @@ type SigninResponse = {
 	message?: string;
 };
 
-// ==================================== SIGN IN COMPONENT  ====================================
+// ==================================== SIGN IN COMPONENT ====================================
 export default function SignIn() {
 	const { user, refresh } = useAuth();
 	const navigate = useNavigate();
 	const location = useLocation();
 
-	// Redirect if already signed in
 	useEffect(() => {
 		if (user) navigate("/dashboard", { replace: true });
 	}, [user, navigate]);
 
-	// Pre-fill email if passed from previous page
 	const initialEmail = (location.state as { email?: string })?.email ?? "";
 	const [email, setEmail] = useState(initialEmail);
 	const [password, setPassword] = useState("");
@@ -41,11 +38,10 @@ export default function SignIn() {
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 
-	// Form validity
 	const isFormValid =
 		email.trim().length > 0 && password.trim().length >= 8 && !busy;
 
-	//  ==================================== Form submission  ====================================
+	// ==================================== Form submission ====================================
 	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError("");
@@ -63,11 +59,6 @@ export default function SignIn() {
 				return;
 			}
 
-			//  ==================================== Extract token and set it for future requests
-			const token = extractToken(data);
-			if (token) setToken(token);
-
-			//  ==================================== refresh user context and redirect
 			await refresh();
 			navigate("/dashboard", { replace: true });
 		} catch (err: unknown) {

@@ -19,12 +19,32 @@ export async function clearHistory() {
 	await api.delete("/api/history");
 }
 
+// ================= DOWNLOAD HELPER =================
+function downloadBlob(blob: Blob, filename: string) {
+	const url = window.URL.createObjectURL(blob);
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = filename;
+	document.body.appendChild(a);
+	a.click();
+	a.remove();
+	window.URL.revokeObjectURL(url);
+}
+
 // ================= EXPORT CSV =================
-export function exportHistoryCSV() {
-	window.open(`${api.defaults.baseURL}/api/history/export/csv`, "_blank");
+export async function exportHistoryCSV() {
+	const response = await api.get("/api/history/export/csv", {
+		responseType: "blob", // IMPORTANT
+	});
+
+	downloadBlob(response.data, "taxlator-history.csv");
 }
 
 // ================= EXPORT PDF =================
-export function exportHistoryPDF() {
-	window.open(`${api.defaults.baseURL}/api/history/export/pdf`, "_blank");
+export async function exportHistoryPDF() {
+	const response = await api.get("/api/history/export/pdf", {
+		responseType: "blob", // IMPORTANT
+	});
+
+	downloadBlob(response.data, "taxlator-history.pdf");
 }

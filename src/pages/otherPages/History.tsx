@@ -3,8 +3,9 @@
 // ====================================
 
 // ====================================
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useHistory } from "../../hooks/useHistory";
+import { exportHistoryCSV, exportHistoryPDF } from "../../state/history";
 // ====================================
 
 // ==================================== HISTORY PAGE COMPONENT ====================================
@@ -18,7 +19,13 @@ export default function HistoryPage() {
 		loadHistory,
 	} = useHistory();
 
+	// ✅ Prevent React 18 StrictMode double execution
+	const didLoadRef = useRef(false);
+
 	useEffect(() => {
+		if (didLoadRef.current) return;
+		didLoadRef.current = true;
+
 		refreshHistory();
 	}, [refreshHistory]);
 
@@ -28,18 +35,14 @@ export default function HistoryPage() {
 			<h2 className="text-xl font-bold mb-4">Your History</h2>
 
 			<div className="flex gap-2 mb-4">
-				<button
-					onClick={() => window.open("/api/history/export/csv", "_blank")}
-					className="btn btn-sm btn-primary"
-				>
+				<button onClick={exportHistoryCSV} className="btn btn-sm btn-primary">
 					Export CSV
 				</button>
-				<button
-					onClick={() => window.open("/api/history/export/pdf", "_blank")}
-					className="btn btn-sm btn-secondary"
-				>
+
+				<button onClick={exportHistoryPDF} className="btn btn-sm btn-secondary">
 					Export PDF
 				</button>
+
 				<button onClick={clearAllHistory} className="btn btn-sm btn-danger">
 					Clear All
 				</button>
@@ -54,13 +57,16 @@ export default function HistoryPage() {
 							<p>
 								<strong>Type:</strong> {item.type}
 							</p>
+
 							<p>
 								<strong>Date:</strong>{" "}
 								{new Date(item.createdAt).toLocaleString()}
 							</p>
+
 							<p>
 								<strong>Input:</strong> {JSON.stringify(item.input)}
 							</p>
+
 							<p>
 								<strong>Result:</strong> {JSON.stringify(item.result)}
 							</p>
