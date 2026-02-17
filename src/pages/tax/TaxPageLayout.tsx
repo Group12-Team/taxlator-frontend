@@ -17,7 +17,6 @@ export default function TaxPageLayout({
 }: Props) {
 	return (
 		<div className="w-full flex justify-center bg-slate-100 min-h-[80vh] px-4 py-2 pb-8">
-			{/* 🔒 HARD WIDTH LOCK */}
 			<div className="w-full max-w-5xl mx-auto">
 				<Link
 					to="/calculate"
@@ -26,7 +25,6 @@ export default function TaxPageLayout({
 					← Back
 				</Link>
 
-				{/* 🔒 GRID WIDTH STABILIZER */}
 				<div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start min-w-0">
 					{/* ================= LEFT PANEL ================= */}
 					<div className="w-full min-w-0 bg-white rounded-2xl border py-7 px-5 shadow-soft">
@@ -38,7 +36,6 @@ export default function TaxPageLayout({
 
 					{/* ================= RIGHT PANEL ================= */}
 					<div className="w-full min-w-0 bg-white rounded-2xl border py-7 px-5 shadow-soft">
-						{/* 🔒 PANEL SHELL NEVER UNMOUNTS */}
 						{rightPanel ? (
 							rightPanel
 						) : (

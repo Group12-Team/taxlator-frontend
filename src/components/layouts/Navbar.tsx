@@ -63,7 +63,6 @@ export default function Navbar() {
 		setMobileOpen(false);
 	}
 
-	// 🔹 Compute auth button live on each render
 	const authButton = (
 		<button
 			onClick={() => (authenticated ? logout() : navigate("/signin"))}
@@ -95,7 +94,7 @@ export default function Navbar() {
 		<>
 			<header className="bg-white border-b w-full">
 				<div className="max-w-6xl mx-auto px-4 py-3 flex items-center">
-					{/* LEFT: Logo */}
+					{/* ======================= LEFT: Logo ======================= */}
 					<Link to="/" className="flex items-center gap-2 shrink-0">
 						<div className="w-9 h-9 rounded bg-brand-700 text-white grid place-items-center font-bold">
 							T
@@ -108,7 +107,7 @@ export default function Navbar() {
 						</div>
 					</Link>
 
-					{/* CENTER: Desktop nav */}
+					{/* ======================= CENTER: Desktop nav ======================= */}
 					<nav className="hidden md:flex flex-1 items-center justify-center gap-2">
 						{filteredNavItems.map((item, idx) =>
 							item.path ? (
@@ -133,7 +132,7 @@ export default function Navbar() {
 						)}
 					</nav>
 
-					{/* RIGHT: Auth + Mobile */}
+					{/* ======================= RIGHT: Auth + Mobile ======================= */}
 					<div className="ml-auto flex items-center gap-2 shrink-0">
 						<button
 							onClick={() => setMobileOpen((v) => !v)}
@@ -151,7 +150,7 @@ export default function Navbar() {
 					</div>
 				</div>
 
-				{/* MOBILE DROPDOWN */}
+				{/*======================= MOBILE DROPDOWN ======================= */}
 				{mobileOpen && (
 					<div className="md:hidden border-t bg-white">
 						<div className="max-w-6xl mx-auto px-4 py-3 grid gap-1">
@@ -178,7 +177,7 @@ export default function Navbar() {
 								),
 							)}
 
-							{/* Mobile auth button */}
+							{/* ======================= Mobile auth button ======================= */}
 							<div className="pt-2 border-t mt-2">{authButton}</div>
 						</div>
 					</div>
