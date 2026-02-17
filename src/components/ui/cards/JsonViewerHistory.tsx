@@ -33,13 +33,13 @@ export default function JsonViewer({ data }: Props) {
 			{Object.entries(data).map(([key, value]) => (
 				<div
 					key={key}
-					className="flex justify-between border-b border-gray-100 py-1.5 last:border-none"
+					className="flex justify-between text-sx md:text-sm font-medium border-b border-brand-200 py-1"
 				>
-					<span className="text-gray-500 capitalize">
+					<span className="capitalize text-xs md:text-sm font-light">
 						{key.replace(/([A-Z])/g, " $1")}
 					</span>
 
-					<span className="text-gray-900 font-medium text-right">
+					<span className="text-xs md:text-sm font-light text-right">
 						{formatValue(value)}
 					</span>
 				</div>

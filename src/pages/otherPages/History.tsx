@@ -17,12 +17,13 @@ function isJsonObject(value: unknown): value is JsonObject {
 function getTypeStyles(type: string) {
 	switch (type.toUpperCase()) {
 		case "VAT":
-			return "bg-blue-50 text-blue-700 border-blue-200";
+			return "text-blue-800 bg-blue-200 border-blue-200 p-3 border rounded-full";
 		case "CIT":
-			return "bg-purple-50 text-purple-700 border-purple-200";
+			return "text-purple-800 bg-purple-200 border-purple-200 p-3 border rounded-full";
 		case "PAYE":
-		case "PIT":
-			return "bg-emerald-50 text-emerald-700 border-emerald-200";
+			return "text-emerald-800 bg-emerald-200 border-emerald-200 p-3 border rounded-full";
+		case "FREELANCE":
+			return "text-amber-800 bg-amber-200 border-amber-200 p-3 border rounded-full";
 		default:
 			return "bg-gray-50 text-gray-700 border-gray-200";
 	}
@@ -89,17 +90,17 @@ export default function HistoryPage() {
 			{/* ======================================================= */}
 
 			{/*  ===================== HISTORY LIST  ===================== */}
-			<div className="w-full max-w-3xl mx-auto my-8 space-y-3">
+			<div className="w-full max-w-3xl mx-auto my-8 space-y-10">
 				{loading && history.length === 0 ? (
 					<p className="text-brand-700 p-4">Loading...</p>
 				) : (
 					history.map((item) => (
 						<div
 							key={item._id}
-							className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition"
+							className="bg-brand-50 border border-brand-200 rounded-xl p-4 shadow-sm hover:shadow-md transition"
 						>
 							{/*  ===================== HEADER  ===================== */}
-							<div className="flex justify-between items-center mb-3">
+							<div className="flex justify-between items-center mb-5">
 								<span
 									className={`text-sx md:text-sm font-bold ${getTypeStyles(
 										item.type,
@@ -114,17 +115,16 @@ export default function HistoryPage() {
 							</div>
 
 							{/*  ===================== INPUT  ===================== */}
-							<div className="mb-3">
-								<p className="text-brand-700 text-[11px] font-semibold mb-1">
+							<div className="mb-5">
+								<p className="text-brand-700 text-sx md:text-sm font-medium mb-2">
 									Input
 								</p>
-
 								{isJsonObject(item.input) && <JsonViewer data={item.input} />}
 							</div>
 
 							{/*  ===================== RESULT  ===================== */}
 							<div>
-								<p className="text-brand-700 text-[11px] font-semibold mb-1">
+								<p className="text-brand-700 text-sx md:text-sm font-medium mb-2">
 									Result
 								</p>
 

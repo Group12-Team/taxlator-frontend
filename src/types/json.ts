@@ -17,3 +17,4 @@ export type JsonValue =
 export interface JsonObject {
 	[key: string]: JsonValue;
 }
+
