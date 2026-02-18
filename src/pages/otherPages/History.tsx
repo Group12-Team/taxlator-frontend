@@ -2,14 +2,15 @@
 // src/pages/otherPages/History.tsx
 // ====================================
 
+// ====================================
 import { useEffect, useRef } from "react";
 import { useHistory } from "../../hooks/useHistory";
 import { exportHistoryCSV, exportHistoryPDF } from "../../state/history";
 import JsonViewer from "../../components/ui/cards/JsonViewerHistory";
-import type { JsonObject } from "../../types/json";
+// ====================================
 
 // ==================================== TYPE GUARD ====================================
-function isJsonObject(value: unknown): value is JsonObject {
+function isJsonObject(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
@@ -20,7 +21,7 @@ function getTypeStyles(type: string) {
 			return "text-blue-800 bg-blue-200 border-blue-200 p-3 border rounded-full";
 		case "CIT":
 			return "text-purple-800 bg-purple-200 border-purple-200 p-3 border rounded-full";
-		case "PAYE":
+		case "PAYE/PIT":
 			return "text-emerald-800 bg-emerald-200 border-emerald-200 p-3 border rounded-full";
 		case "FREELANCE":
 			return "text-amber-800 bg-amber-200 border-amber-200 p-3 border rounded-full";
@@ -70,7 +71,6 @@ export default function HistoryPage() {
 				>
 					Export CSV
 				</button>
-				{/* ======================================================= */}
 
 				<button
 					onClick={exportHistoryPDF}
@@ -78,7 +78,6 @@ export default function HistoryPage() {
 				>
 					Export PDF
 				</button>
-				{/* ======================================================= */}
 
 				<button
 					onClick={clearAllHistory}
@@ -87,9 +86,8 @@ export default function HistoryPage() {
 					Clear All
 				</button>
 			</div>
-			{/* ======================================================= */}
 
-			{/*  ===================== HISTORY LIST  ===================== */}
+			{/* ===================== HISTORY LIST ===================== */}
 			<div className="w-full max-w-3xl mx-auto my-8 space-y-10">
 				{loading && history.length === 0 ? (
 					<p className="text-brand-700 p-4">Loading...</p>
@@ -99,7 +97,7 @@ export default function HistoryPage() {
 							key={item._id}
 							className="bg-brand-50 border border-brand-200 rounded-xl p-4 shadow-sm hover:shadow-md transition"
 						>
-							{/*  ===================== HEADER  ===================== */}
+							{/* ===================== HEADER ===================== */}
 							<div className="flex justify-between items-center mb-5">
 								<span
 									className={`text-sx md:text-sm font-bold ${getTypeStyles(
@@ -114,21 +112,43 @@ export default function HistoryPage() {
 								</span>
 							</div>
 
-							{/*  ===================== INPUT  ===================== */}
+							{/* ===================== INPUT ===================== */}
 							<div className="mb-5">
 								<p className="text-brand-700 text-sx md:text-sm font-medium mb-2">
 									Input
 								</p>
-								{isJsonObject(item.input) && <JsonViewer data={item.input} />}
+								{isJsonObject(item.input) && (
+									<JsonViewer
+										data={item.input}
+										type={item.type}
+										sectionKey="input"
+									/>
+								)}
 							</div>
 
-							{/*  ===================== RESULT  ===================== */}
+							{/* ===================== RESULT ===================== */}
 							<div>
 								<p className="text-brand-700 text-sx md:text-sm font-medium mb-2">
 									Result
 								</p>
 
-								{isJsonObject(item.result) && <JsonViewer data={item.result} />}
+								{isJsonObject(item.result) &&
+									Object.entries(item.result).map(
+										([sectionKey, sectionValue]) =>
+											isJsonObject(sectionValue) ? (
+												<div key={sectionKey} className="mb-5">
+													<p className="text-brand-700 text-sx md:text-sm font-medium mb-2">
+														{sectionKey}
+													</p>
+
+													<JsonViewer
+														data={sectionValue}
+														type={item.type}
+														sectionKey={sectionKey}
+													/>
+												</div>
+											) : null,
+									)}
 							</div>
 						</div>
 					))

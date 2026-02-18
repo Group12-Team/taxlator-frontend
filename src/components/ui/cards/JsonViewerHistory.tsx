@@ -2,42 +2,53 @@
 // src/components/ui/cards/JsonViewerHistory.tsx
 // ====================================
 
-import type { JsonObject, JsonValue } from "../../../types/json";
+// ====================================
+import { formatSection } from "../../../utils/historyFormatter";
+import type { HistoryType } from "../../../types/history.type";
+// ====================================
 
+// ====================================
 type Props = {
-	data: JsonObject;
+	data: Record<string, unknown>; // already-sanitized DTO section
+	type: HistoryType; // PAYE | VAT | etc.
+	sectionKey: string; // summary | totals | etc.
 };
+// ====================================
 
 // ==================================== VALUE FORMATTER ====================================
-function formatValue(value: JsonValue): string {
-	if (value === null) return "—";
+function formatValue(value: unknown): string {
+	if (value === null || value === undefined) return "—";
 
 	if (typeof value === "boolean") return value ? "Yes" : "No";
 
-	if (typeof value === "number") {
-		return new Intl.NumberFormat("en-NG").format(value);
-	}
+	if (typeof value === "number") return String(value);
 
 	if (typeof value === "string") return value;
 
-	// Flatten nested objects instead of showing {}
 	if (Array.isArray(value)) return value.join(", ");
 
-	return Object.values(value).join(" ");
+	if (typeof value === "object") {
+		// flatten nested DTO-safe objects
+		return Object.values(value as Record<string, unknown>)
+			.map((v) => formatValue(v))
+			.join(" ");
+	}
+
+	return String(value);
 }
 
 // ==================================== JSON VIEWER ====================================
-export default function JsonViewer({ data }: Props) {
+export default function JsonViewer({ data, type, sectionKey }: Props) {
+	const rows = formatSection(type, sectionKey, data);
+
 	return (
 		<div className="flex flex-col">
-			{Object.entries(data).map(([key, value]) => (
+			{rows.map(({ key, label, value }) => (
 				<div
 					key={key}
 					className="flex justify-between text-sx md:text-sm font-medium border-b border-brand-200 py-1"
 				>
-					<span className="capitalize text-xs md:text-sm font-light">
-						{key.replace(/([A-Z])/g, " $1")}
-					</span>
+					<span className="text-xs md:text-sm font-light">{label}</span>
 
 					<span className="text-xs md:text-sm font-light text-right">
 						{formatValue(value)}

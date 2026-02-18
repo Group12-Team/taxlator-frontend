@@ -20,20 +20,29 @@ export type HistoryResultMap = {
 	CIT: CitResponse;
 };
 
-// ------------------------------ HISTORY RESULT (UNION) ------------------------------
+// ------------------------------ PUBLIC RESULT WRAPPER ------------------------------
+export type PublicResult<T> = {
+	readonly [K in keyof T]: T[K];
+};
+
+// ------------------------------ HISTORY RESULT (DISCRIMINATED UNION) ------------------------------
 export type HistoryResult =
-	| { type: "PAYE"; result: PayePitResponse }
-	| { type: "FREELANCER"; result: FreelancerResponse }
-	| { type: "VAT"; result: VatResponse }
-	| { type: "CIT"; result: CitResponse };
+	| { type: "PAYE/PIT"; result: PublicResult<PayePitResponse> }
+	| { type: "FREELANCER"; result: PublicResult<FreelancerResponse> }
+	| { type: "VAT"; result: PublicResult<VatResponse> }
+	| { type: "CIT"; result: PublicResult<CitResponse> };
 
 // ------------------------------ HISTORY ITEM DTO ------------------------------
 export interface HistoryItemDTO<T extends HistoryType = HistoryType> {
 	_id: string;
 	type: T;
 	createdAt: string;
+
+	// Inputs may vary per calculator — keep flexible
 	input: unknown;
-	result: HistoryResultMap[T];
+
+	// Result is already cleaned by DTO.toJSON() on the backend
+	result: PublicResult<HistoryResultMap[T]>;
 }
 
 // ------------------------------ HISTORY LIST RESPONSE ------------------------------
