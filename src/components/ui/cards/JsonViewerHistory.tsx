@@ -9,9 +9,9 @@ import type { HistoryType } from "../../../types/history.type";
 
 // ====================================
 type Props = {
-	data: Record<string, unknown>; // already-sanitized DTO section
-	type: HistoryType; // PAYE | VAT | etc.
-	sectionKey: string; // summary | totals | etc.
+	data: Record<string, unknown>; 
+	type: HistoryType;
+	sectionKey: string; 
 };
 // ====================================
 

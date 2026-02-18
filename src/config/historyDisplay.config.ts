@@ -1,18 +1,22 @@
 // ====================================
+// src/config/historyDisplay.config.ts
+// ====================================
+
+// ====================================
 import type { HistoryType } from "../types/history.type";
 // ====================================
 
 // ====================================
 type SectionConfig = {
-	order?: string[]; // preferred key order
-	labels?: Record<string, string>; // key → UI label
+	order?: string[];
+	labels?: Record<string, string>;
 };
 // ====================================
 
 // ====================================
 type HistoryDisplayConfig = Record<
 	HistoryType,
-	Record<string, SectionConfig> // section name → config
+	Record<string, SectionConfig>
 >;
 // ====================================
 

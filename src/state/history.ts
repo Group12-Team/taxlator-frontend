@@ -34,7 +34,7 @@ function downloadBlob(blob: Blob, filename: string) {
 // ================= EXPORT CSV =================
 export async function exportHistoryCSV() {
 	const response = await api.get("/api/history/export/csv", {
-		responseType: "blob", // IMPORTANT
+		responseType: "blob",
 	});
 
 	downloadBlob(response.data, "taxlator-history.csv");
@@ -43,7 +43,7 @@ export async function exportHistoryCSV() {
 // ================= EXPORT PDF =================
 export async function exportHistoryPDF() {
 	const response = await api.get("/api/history/export/pdf", {
-		responseType: "blob", // IMPORTANT
+		responseType: "blob", 
 	});
 
 	downloadBlob(response.data, "taxlator-history.pdf");

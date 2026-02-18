@@ -1,4 +1,8 @@
 // ====================================
+// src/utils/historyFormatter.ts
+// ====================================
+
+// ====================================
 import { historyDisplayConfig } from "../config/historyDisplay.config";
 import type { HistoryType } from "../types/history.type";
 // ====================================
@@ -13,7 +17,6 @@ export function formatSection(
 
 	const entries = Object.entries(data);
 
-	// Apply ordering if provided
 	if (config?.order) {
 		entries.sort(([a], [b]) => {
 			const ai = config.order!.indexOf(a);
@@ -29,7 +32,6 @@ export function formatSection(
 	}));
 }
 
-// fallback label generator (camelCase → Title Case)
 function autoLabel(key: string) {
 	return key.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
 }
