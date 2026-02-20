@@ -7,7 +7,7 @@ import { historyDisplayConfig } from "../config/historyDisplay.config";
 import type { HistoryType } from "../types/history.type";
 // ====================================
 
-// ==================================== HISTORY DISPLAY CONFIG FORMATTERHELPER ====================================
+// ==================================== HISTORY DISPLAY FORMATTER HELPER ====================================
 export function formatSection(
 	type: HistoryType,
 	sectionKey: string,

@@ -9,13 +9,13 @@ import type { HistoryType } from "../../../types/history.type";
 
 // ====================================
 type Props = {
-	data: Record<string, unknown>; 
+	data: Record<string, unknown>;
 	type: HistoryType;
-	sectionKey: string; 
+	sectionKey: string;
 };
 // ====================================
 
-// ==================================== VALUE FORMATTER ====================================
+// ==================================== HISTORY VALUE FORMATTER ====================================
 function formatValue(value: unknown): string {
 	if (value === null || value === undefined) return "—";
 
